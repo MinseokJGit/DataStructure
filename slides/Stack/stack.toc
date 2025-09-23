@@ -1,0 +1,6 @@
+\beamer@sectionintoc {1}{Introduction to Stacks}{3}{0}{1}
+\beamer@sectionintoc {2}{Core Operations}{5}{0}{2}
+\beamer@sectionintoc {3}{Implementation Approaches}{8}{0}{3}
+\beamer@sectionintoc {4}{Applications}{11}{0}{4}
+\beamer@sectionintoc {5}{Complexity Analysis}{15}{0}{5}
+\beamer@sectionintoc {6}{Summary}{17}{0}{6}
