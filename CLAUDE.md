@@ -25,17 +25,22 @@ The repository follows a modular educational approach:
 - **Wikilink Structure**: Uses `[[topic]]` syntax for internal cross-references between related concepts
 
 ### Presentation System
-- **BeamerTemplate**: Complete LaTeX presentation framework with modular theme components
-- **Theme Structure**: Separated into individual `.sty` files for colors, fonts, inner/outer themes for customization
+- **BeamerTemplate**: Complete LaTeX presentation framework with modular theme components in `slides/BeamerTemplate/`
+- **Theme Structure**: Separated into individual `.sty` files (colors, fonts, inner/outer themes) in `theme/` subdirectory
 - **Configuration Files**: Modular configs in `configs/` directory for title pages and global settings
+- **Topic Presentations**: Individual topic presentations in separate folders (e.g., `slides/Stack/`, `slides/Presentation/`) that can use the BeamerTemplate theme
 
 ## Common Development Commands
 
 ### Python Assignment Testing
 ```bash
-# Run unit tests for assignments (e.g., stack assignment)
+# Run all unit tests for assignments (e.g., stack assignment)
 cd assignments/stack/
 python test_stack.py
+
+# Run specific test class or method
+python -m unittest test_stack.TestArrayStack
+python -m unittest test_stack.TestArrayStack.test_push
 
 # Run application demonstrations
 python application.py
@@ -59,6 +64,7 @@ pdflatex stack.tex
 - No build process required for markdown content
 - Use any markdown editor or preview tool
 - Cross-references use wikilink format: `[[Topic-Name]]`
+- Repository is git-tracked; standard git workflow applies
 
 ## Content Guidelines
 
@@ -85,3 +91,9 @@ pdflatex stack.tex
   - Test file (e.g., `test_stack.py`) with comprehensive unit tests
 - Include detailed README.md explaining concepts, implementation trade-offs, and learning objectives
 - Provide student template versions by removing core implementations for educational exercises
+
+## Development Notes
+- **Current Assignments**: Only stack assignment is currently implemented
+- **LaTeX Compilation**: Requires standard LaTeX distribution with Beamer package
+- **Python Version**: Code written for Python 3.x
+- **Testing Framework**: Uses Python's built-in `unittest` module
