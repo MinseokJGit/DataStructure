@@ -112,14 +112,23 @@
       \end{block}
     \end{column}
     \begin{column}{0.45\textwidth}
-      \begin{exampleblock}{Python Example}
-        \begin{lstlisting}[language=Python,basicstyle=\tiny\ttfamily]
-s = []
-s.append(10)      # push
-s.append(20)
-top = s[-1]       # peek -> 20
-x = s.pop()       # pop -> 20
-empty = (len(s) == 0)
+      \begin{exampleblock}{C Example}
+        \begin{lstlisting}[language=C,basicstyle=\tiny\ttfamily]
+int s[100];
+int top = -1;          // empty
+
+// push
+s[++top] = 10;
+s[++top] = 20;
+
+// peek (top element)
+int topVal = s[top];   // -> 20
+
+// pop
+int x = s[top--];      // -> 20
+
+// empty?
+int empty = (top == -1);
         \end{lstlisting}
       \end{exampleblock}
     \end{column}
