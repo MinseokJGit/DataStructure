@@ -4,96 +4,141 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a **Data Structures Learning Repository** containing educational materials for learning data structures and algorithms. It is structured as a comprehensive curriculum with markdown-based documentation and LaTeX presentation materials.
+This is a **Data Structures Learning Repository** containing educational materials for learning data structures and algorithms, structured as a comprehensive curriculum with markdown documentation, Python assignments, and LaTeX presentations.
 
 ## Repository Structure
 
-The repository follows a modular educational approach:
-
-- **`topics/`** - Core learning modules with individual markdown files for each data structure and algorithm topic
-- **`slides/BeamerTemplate/`** - LaTeX Beamer presentation template for creating educational slides
-- **`slides/[Topic]/`** - Topic-specific presentation materials (e.g., `slides/Stack/`)
-- **`assignments/`** - Practical coding assignments with implementations, tests, and documentation
-- **`Time/`** - Time and space complexity analysis materials
-- **`Roadmap.md`** - Master curriculum guide that outlines the complete learning path
-
-## Key Architecture Components
-
-### Educational Content Organization
-- **Sequential Learning Path**: Content follows a progression from foundations (`01-Foundations.md`) through advanced topics (`09-Next-Steps.md`)
-- **Cross-Referenced Topics**: Individual topic files (e.g., `Arrays.md`, `Trees.md`, `Hash-Tables.md`) provide deep-dive content that complements the sequential modules
-- **Wikilink Structure**: Uses `[[topic]]` syntax for internal cross-references between related concepts
-
-### Presentation System
-- **BeamerTemplate**: Complete LaTeX presentation framework with modular theme components in `slides/BeamerTemplate/`
-- **Theme Structure**: Separated into individual `.sty` files (colors, fonts, inner/outer themes) in `theme/` subdirectory
-- **Configuration Files**: Modular configs in `configs/` directory for title pages and global settings
-- **Topic Presentations**: Individual topic presentations in separate folders (e.g., `slides/Stack/`, `slides/Presentation/`) that can use the BeamerTemplate theme
+- **`Roadmap.md`** - Master curriculum guide outlining the complete learning progression (Foundations → Advanced Structures → Algorithms → Applications)
+- **`topics/`** - Individual markdown files for each data structure/algorithm topic, using wikilink cross-references (`[[Topic-Name]]`)
+  - Sequential modules: `01-Foundations.md` through `09-Next-Steps.md`
+  - Standalone deep-dives: `Arrays.md`, `Trees.md`, `Hash-Tables.md`, etc.
+- **`assignments/`** - Python coding assignments with multiple implementations:
+  - `stack/`, `queue/`, `linked_list/`, `tree/`, `graph/`, `trie/`
+  - Each follows the three-file pattern (see below)
+- **`slides/BeamerTemplate/`** - Reusable LaTeX Beamer theme with modular `.sty` files in `theme/` subdirectory
+- **`slides/[Topic]/`** - Topic-specific presentations that use the BeamerTemplate theme
 
 ## Common Development Commands
 
-### Python Assignment Testing
+### Python Assignments
 ```bash
-# Run all unit tests for assignments (e.g., stack assignment)
-cd assignments/stack/
-python test_stack.py
+# Run unit tests for an assignment (use absolute path from repo root)
+python /Users/minseokjeon/dgistpl/DataStructure/assignments/stack/test_stack.py
+python /Users/minseokjeon/dgistpl/DataStructure/assignments/queue/test_queue.py
 
-# Run specific test class or method
-python -m unittest test_stack.TestArrayStack
-python -m unittest test_stack.TestArrayStack.test_push
+# Run demonstrations
+python /Users/minseokjeon/dgistpl/DataStructure/assignments/stack/application.py
 
-# Run application demonstrations
-python application.py
+# Note: Tests use function-based approach, not unittest classes
+# The test files define test functions and run them with a custom runner
 ```
-
-### LaTeX Presentation Compilation
-```bash
-# Compile Beamer presentations
-cd slides/BeamerTemplate/
-pdflatex CleanEasy.tex
-
-# Alternative compilation
-latexmk CleanEasy.tex
-
-# Compile specific topic presentations
-cd slides/Stack/
-pdflatex stack.tex
-```
-
-### Content Development
-- No build process required for markdown content
-- Use any markdown editor or preview tool
-- Cross-references use wikilink format: `[[Topic-Name]]`
-- Repository is git-tracked; standard git workflow applies
-
-## Content Guidelines
-
-### Markdown Structure
-- Each topic file should follow the established pattern with "Knowledge Points" and "Details" sections
-- Use clear hierarchical headings (##, ###) for organization
-- Include practical examples and implementation notes
-- Cross-reference related topics using wikilink syntax
-
-### Learning Path Integration
-- New topics should be integrated into the main `Roadmap.md` sequence
-- Consider both sequential placement and individual topic depth
-- Maintain the progression from basic to advanced concepts
 
 ### LaTeX Presentations
-- Use the provided CleanEasy theme for consistency
-- Separate content into modular components when possible
-- Follow the established package and configuration structure in `CleanEasy.tex`
+```bash
+# Compile the BeamerTemplate example
+cd slides/BeamerTemplate/
+pdflatex CleanEasy.tex
+# or: latexmk CleanEasy.tex
 
-### Assignment Structure
-- Each assignment should include three core files:
-  - Implementation file (e.g., `stack.py`) with complete working code
-  - Application file (e.g., `application.py`) demonstrating practical use cases
-  - Test file (e.g., `test_stack.py`) with comprehensive unit tests
-- Include detailed README.md explaining concepts, implementation trade-offs, and learning objectives
-- Provide student template versions by removing core implementations for educational exercises
+# Compile topic-specific presentations
+cd slides/Stack/
+pdflatex stack.tex
 
-## Development Notes
-- **Current Assignments**: Only stack assignment is currently implemented
-- **LaTeX Compilation**: Requires standard LaTeX distribution with Beamer package
-- **Python Version**: Code written for Python 3.x
-- **Testing Framework**: Uses Python's built-in `unittest` module
+# Note: Topic presentations use \input@path to reference ../BeamerTemplate/theme/
+```
+
+## Key Architecture Patterns
+
+### Assignment Structure (Three-File Pattern)
+Each assignment follows this mandatory structure (see `assignments/stack/` and `assignments/queue/` as reference):
+
+1. **`[topic].py`** - Complete implementation with multiple approaches
+   - Multiple implementation variants (e.g., ArrayStack vs LinkedListStack)
+   - Utility functions demonstrating practical applications
+   - Include comparison comments on time/space trade-offs
+
+2. **`application.py`** - Real-world demonstrations
+   - Must show 4-6 practical use cases
+   - Include performance comparisons when multiple implementations exist
+   - Demonstrates how the data structure solves real problems
+
+3. **`test_[topic].py`** - Comprehensive tests using function-based approach
+   - Define test functions: `def test_[feature]():`
+   - Use assert statements for verification
+   - Custom test runner at the end of file
+   - Test all operations, edge cases, and exception handling
+   - Include tests for utility functions
+
+4. **`README.md`** - Comprehensive assignment documentation
+   - Implementation comparison table with time/space complexity
+   - Learning objectives
+   - Student template instructions (how to hide implementations for exercises)
+   - Common pitfalls and extension ideas
+   - Real-world applications section
+   - Performance characteristics summary
+
+### Topic Documentation Pattern
+Each topic file in `topics/` follows this structure:
+1. One-line description at the top
+2. **Knowledge Points** section with wikilinks: `[[concept]]`
+3. **Details** section with subsections (###) for each knowledge point
+4. Code examples in Details section
+5. Complexity analysis where relevant
+
+### Presentation Theme System
+The BeamerTemplate provides a modular theme:
+- **Theme files** in `slides/BeamerTemplate/theme/`:
+  - `beamerthemeCleanEasy.sty` - Main theme
+  - `beamercolorthemeCleanEasy.sty` - Color scheme
+  - `beamerfontthemeCleanEasy.sty` - Font settings
+  - `beamerinnerthemeCleanEasy.sty` - Inner elements
+  - `beamerouterthemeCleanEasy.sty` - Outer elements
+
+- **Configuration pattern** for topic presentations:
+  - Reference the theme using: `\makeatletter \def\input@path{{../BeamerTemplate/theme/}} \makeatother`
+  - Use `\usetheme{CleanEasy}` in the preamble
+  - Import configs: `\input{../BeamerTemplate/configs/configs}`
+  - Topic-specific customization can be added in local configs if needed
+
+## Content Development Workflows
+
+### Adding a New Assignment
+1. Create `assignments/[topic]/` directory
+2. Implement the three-file pattern (`[topic].py`, `application.py`, `test_[topic].py`)
+3. Write README.md following `assignments/queue/README.md` structure (most comprehensive example)
+4. Include in README:
+   - Implementation comparison table
+   - Real-world applications section
+   - Performance characteristics summary
+   - Student template code
+   - Extension ideas
+5. Update `Roadmap.md` to reference the new assignment in the appropriate module
+
+### Adding a New Topic
+1. Create `topics/[Topic-Name].md` with Knowledge Points and Details sections
+2. Use wikilink syntax `[[concept]]` for cross-references
+3. Add the topic to `Roadmap.md` in the appropriate module (## 3-9)
+4. Consider creating a matching presentation in `slides/[Topic]/`
+
+### Creating a New Presentation
+1. Create `slides/[Topic]/` directory
+2. Reference the theme: `\makeatletter \def\input@path{{../BeamerTemplate/theme/}} \makeatother`
+3. Use `\usetheme{CleanEasy}` for consistent styling
+4. Import shared configs: `\input{../BeamerTemplate/configs/configs}`
+5. Set presentation metadata (title, author, institute, date)
+
+## Technical Requirements
+
+- **Python**: 3.x
+- **Testing**: Function-based tests with assert statements, not unittest.TestCase classes
+- **LaTeX**: Standard distribution with Beamer package
+- **Content Format**: Markdown with wikilink support for cross-references
+
+## Important Notes
+
+- The test files use function-based testing with assert statements, not unittest classes
+- When running tests, use absolute paths from repository root
+- `assignments/stack/README.md` and `assignments/queue/README.md` serve as canonical references for creating new assignments
+- Queue assignment README is the most comprehensive with grading rubric and detailed sections
+- Wikilinks (`[[Topic-Name]]`) are used throughout for cross-referencing but require a compatible markdown viewer
+- The learning path in `Roadmap.md` is sequential but topic files can be studied independently

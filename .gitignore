@@ -1,0 +1,16 @@
+*.DS_Store
+*.nav
+*.snm
+*.log
+*.aux
+*.fls
+*.gz
+*.latexmk
+*.out
+*.bbl
+*.blg
+*.toc
+*.vrb
+*.fdb_latexmk
+*/__pycache__/*
+*.obsidian/*
