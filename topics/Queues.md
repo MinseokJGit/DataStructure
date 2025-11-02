@@ -3,145 +3,97 @@
 FIFO structure for scheduling and buffering.
 
 ## Knowledge Points
-- [[Core operations: enqueue/dequeue]]
-- [[Circular queue and deque]]
-- [[Priority queue overview]]
-- [[Producer-consumer patterns]]
-- [[Queues in OS and networking]]
-- [[Array vs linked-list implementation]]
-- [[Time/space complexity]]
 
-## Illustrations
+### 1. Core operations: enqueue/dequeue
 
-### Core operations: enqueue/dequeue (FIFO)
-```mermaid
-flowchart LR
-    subgraph Queue[Queue (FIFO)]
-      F((front)) --> N1[1]
-      N1 --> N2[2]
-      N2 --> N3[3]
-      N3 --> R((rear))
-    end
+**Enqueue** (add to rear):
+- Adds an element to the back/rear of the queue
+- Time complexity: O(1)
+- Example: `queue.enqueue(5)` adds 5 to the end
 
-    Enq[enqueue(x)] --> R
-    F --> Deq[dequeue()]
-    note1{{"front returns first-in"}} --- F
-    note2{{"rear is insertion point"}} --- R
-```
+**Dequeue** (remove from front):
+- Removes and returns the element at the front of the queue
+- Time complexity: O(1)
+- Maintains FIFO (First-In-First-Out) principle
+- Example: `queue.dequeue()` removes the oldest element
 
-Explanation: Elements are inserted at `rear` with `enqueue`, and removed from `front` with `dequeue`, preserving order.
+**Additional operations**: `peek()`/`front()`, `isEmpty()`, `size()`
 
-### Circular queue (array-backed wrap-around)
-```mermaid
-flowchart TB
-    subgraph Buffer[Fixed-size array]
-      A[(0)] --> B[(1)] --> C[(2)] --> D[(3)] --> E[(4)] --> A
-    end
-    style Buffer fill:#f8f8ff,stroke:#aaa
-    Fpos[[front = 3]]
-    Rpos[[rear = 1]]
-    Fpos -. points to .- D
-    Rpos -. next insert .- B
-    note{{"Use (index + 1) % capacity to wrap"}}
-```
+### 2. Circular queue and deque
 
-Two common full/empty strategies:
-- Track `size` explicitly.
-- Reserve one empty slot and use `(rear + 1) % capacity == front` to denote full.
+**Circular Queue**:
+- Uses fixed-size array with wrap-around using modulo arithmetic
+- `rear = (rear + 1) % capacity`
+- Efficiently reuses space after dequeue operations
+- Prevents "false full" condition in linear queues
 
-### Deque (double-ended queue)
-```mermaid
-flowchart LR
-    subgraph Deque
-      F((front)) --> X[ ] --> Y[ ] --> Z[ ] --> R((rear))
-    end
-    pushFront[pushFront(a)] --> F
-    pushBack[pushBack(b)] --> R
-    F --> popFront[popFront()]
-    R --> popBack[popBack()]
-```
+**Deque (Double-Ended Queue)**:
+- Allows insertion/deletion at both ends
+- Operations: `addFront()`, `addRear()`, `removeFront()`, `removeRear()`
+- More flexible than standard queue
+- Use cases: sliding window problems, palindrome checking
 
-### Priority queue (binary heap view)
-```mermaid
-graph TD
-    A((3))
-    B((5))
-    C((7))
-    D((9))
-    E((12))
-    F((8))
-    G((10))
-    A --> B
-    A --> C
-    B --> D
-    B --> E
-    C --> F
-    C --> G
-    classDef minHeap fill:#e8fff4,stroke:#3a7,stroke-width:1px;
-    class A,B,C,D,E,F,G minHeap;
-```
+### 3. Priority queue overview
 
-Heap invariant: parent key <= children (min-heap). Insert and extract-min are O(log n).
+- Elements have associated priorities
+- Higher priority elements dequeued first (regardless of insertion order)
+- Typically implemented using **heaps** (binary heap)
+- Operations: `insert()` O(log n), `extractMax/Min()` O(log n)
+- Applications: task scheduling, Dijkstra's algorithm, A* search, event simulation
 
-### Producer-consumer pattern (bounded buffer)
-```mermaid
-sequenceDiagram
-    participant P as Producer
-    participant Q as Queue (bounded)
-    participant C as Consumer
-    loop produce
-        P->>Q: enqueue(item)
-        Note right of Q: If full → block/wait/timeout
-    end
-    loop consume
-        C->>Q: dequeue()
-        Note right of Q: If empty → block/wait/timeout
-        Q-->>C: item
-    end
-```
+### 4. Producer-consumer patterns
 
-### Queues in OS and networking
-```mermaid
-flowchart LR
-    subgraph NIC[NIC / Router]
-      Pkts[Incoming packets] --> Q0[[Queue: Best Effort]]
-      Pkts --> Q1[[Queue: Voice (High Pri)]]
-      Pkts --> Q2[[Queue: Video (Med Pri)]]
-      Scheduler{{WFQ/DRR/PQ Scheduler}} -->|dequeue based on policy| Out((TX))
-      Q0 --> Scheduler
-      Q1 --> Scheduler
-      Q2 --> Scheduler
-    end
+- **Producer**: Generates data and enqueues it
+- **Consumer**: Dequeues and processes data
+- Queue acts as a **buffer** between different-speed processes
+- Handles synchronization in concurrent systems
+- Examples: print spooler, message queues, streaming data pipelines
+- Prevents data loss when producer is faster than consumer
 
-    subgraph OS[OS Scheduler]
-      RQ[[Ready Queue]] --> CPU[(CPU)]
-      noteOS{{MLFQ / Aging / Time Slices}} --- RQ
-    end
-```
+### 5. Queues in OS and networking
 
-### Array vs linked-list queue (shape intuition)
-```mermaid
-flowchart TB
-    subgraph ArrayQueue[Array-backed (circular buffer)]
-      A0[( )]-->A1[( )]-->A2[( )]-->A3[( )]-->A4[( )]-->A0
-      Ff[[front]] -.-> A2
-      Rr[[rear]] -.-> A4
-    end
+**Operating Systems**:
+- CPU scheduling (ready queue, waiting queue)
+- Process management
+- I/O request buffering
+- Interrupt handling
 
-    subgraph LinkedQueue[Linked-list-backed]
-      Lf((front)) --> L1(( )) --> L2(( )) --> L3(( )) --> Lr((rear))
-    end
+**Networking**:
+- Packet routing and buffering
+- Network switch queues
+- Rate limiting and traffic shaping
+- TCP send/receive buffers
 
-    noteA{{Cache-friendly, fixed capacity unless resized}} --- ArrayQueue
-    noteL{{Dynamic growth, extra pointers, less locality}} --- LinkedQueue
-```
+### 6. Array vs linked-list implementation
 
-### Time/space complexity (summary)
+**Array-based**:
+- ✓ Cache-friendly, better locality
+- ✓ Simple implementation
+- ✗ Fixed size (or requires resizing)
+- ✗ Wasted space in linear implementation
 
-| Structure | enqueue/push | dequeue/pop | peek/top | space |
-|---|---|---|---|---|
-| Queue (array/linked) | O(1) amortized / O(1) | O(1) | O(1) | O(n) |
-| Deque | O(1) | O(1) | O(1) | O(n) |
-| Priority Queue (heap) | O(log n) | O(log n) | O(1) | O(n) |
+**Linked-list based**:
+- ✓ Dynamic size, no wasted space
+- ✓ No resizing overhead
+- ✗ Extra memory for pointers
+- ✗ Poor cache performance
+- ✗ More complex memory management
 
-Tip: For bounded integer priorities, consider bucket queues/radix heaps for near O(1) amortized ops.
+### 7. Time/space complexity
+
+**Time Complexity**:
+- Enqueue: O(1)
+- Dequeue: O(1)
+- Peek: O(1)
+- Search: O(n) - not a primary queue operation
+
+**Space Complexity**:
+- O(n) where n is the number of elements
+- Array: may have unused capacity
+- Linked-list: additional O(n) for pointers
+
+**Priority Queue**:
+- Insert: O(log n)
+- Extract min/max: O(log n)
+- Peek: O(1)
+

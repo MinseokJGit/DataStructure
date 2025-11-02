@@ -1,0 +1,1203 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc, graphs}
+
+% Set path to find the theme
+\makeatletter
+\def\input@path{{../BeamerTemplate/theme/}}
+\makeatother
+
+\usetheme{CleanEasy}
+\input{../BeamerTemplate/configs/configs}
+
+% Listings configuration
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+\title{Graph Algorithms}
+\subtitle{Compute Connectivity, Paths, and Structures Over Graphs}
+\author{Minseok Jeon}
+\institute{DGIST}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{What are Graph Algorithms?}
+  \textbf{Graph Algorithms}: Methods to solve problems on graph structures
+
+  \vspace{0.3cm}
+  \textbf{Key Problems:}
+  \begin{itemize}
+    \item \textbf{Traversal}: Visit all vertices/edges
+    \item \textbf{Connectivity}: Determine if vertices are connected
+    \item \textbf{Shortest Paths}: Find minimum cost paths
+    \item \textbf{Spanning Trees}: Connect all vertices with minimum cost
+    \item \textbf{Flow}: Maximize throughput in networks
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Real-World Applications:}
+  \begin{itemize}
+    \item Social networks (connections, recommendations)
+    \item Navigation systems (GPS, routing)
+    \item Computer networks (packet routing, topology)
+    \item Task scheduling (dependencies, ordering)
+    \item Bioinformatics (protein interactions, gene networks)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Graph Basics Recap}
+  \textbf{Graph}: $G = (V, E)$ where $V$ = vertices, $E$ = edges
+
+  \vspace{0.3cm}
+  \textbf{Types:}
+  \begin{itemize}
+    \item \textbf{Directed vs Undirected}: Edges have direction or not
+    \item \textbf{Weighted vs Unweighted}: Edges have costs or not
+    \item \textbf{Cyclic vs Acyclic}: Contains cycles or not (DAG)
+    \item \textbf{Connected vs Disconnected}: All vertices reachable or not
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Complexity Notation:}
+  \begin{itemize}
+    \item $V$ = number of vertices
+    \item $E$ = number of edges
+    \item Dense graph: $E \approx V^2$
+    \item Sparse graph: $E \approx V$
+  \end{itemize}
+\end{frame}
+
+\section{BFS/DFS Applications}
+
+\begin{frame}{Breadth-First Search (BFS)}
+  \textbf{Level-by-Level Exploration Using Queue}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Start from source vertex
+    \item Add to queue and mark visited
+    \item Dequeue, process, enqueue unvisited neighbors
+    \item Repeat until queue empty
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(V + E)$
+    \item \textbf{Space}: $O(V)$ for queue and visited set
+    \item \textbf{Data Structure}: Queue (FIFO)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Key Property:}
+  \begin{itemize}
+    \item Finds \textbf{shortest path} in unweighted graphs
+    \item Visits vertices in order of distance from source
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{BFS Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+from collections import deque
+
+def bfs(graph, start):
+    """BFS traversal from start node"""
+    visited = set([start])
+    queue = deque([start])
+    result = []
+
+    while queue:
+        node = queue.popleft()
+        result.append(node)
+
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+    return result
+
+# Example
+graph = {
+    0: [1, 2],
+    1: [0, 3, 4],
+    2: [0, 4],
+    3: [1],
+    4: [1, 2]
+}
+print(bfs(graph, 0))  # [0, 1, 2, 3, 4]
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{BFS Applications}
+  \textbf{1. Shortest Path in Unweighted Graph:}
+  \begin{itemize}
+    \item Find minimum number of edges from source to target
+    \item Track parent pointers to reconstruct path
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{2. Level-Order Traversal:}
+  \begin{itemize}
+    \item Process nodes by distance from source
+    \item Used in tree level-order traversal
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{3. Connected Components:}
+  \begin{itemize}
+    \item Find all disconnected subgraphs
+    \item Run BFS from each unvisited vertex
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{4. Bipartite Check:}
+  \begin{itemize}
+    \item Determine if graph is 2-colorable
+    \item Alternate colors during BFS
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{5. Web Crawling:}
+  \begin{itemize}
+    \item Explore web pages level by level
+    \item Limit crawl depth
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Depth-First Search (DFS)}
+  \textbf{Explore as Deep as Possible Using Stack/Recursion}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Start from source vertex
+    \item Mark visited, explore first unvisited neighbor
+    \item Recursively DFS on neighbor
+    \item Backtrack when no unvisited neighbors
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(V + E)$
+    \item \textbf{Space}: $O(V)$ for recursion stack (or explicit stack)
+    \item \textbf{Data Structure}: Stack (LIFO) or recursion
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Key Property:}
+  \begin{itemize}
+    \item Explores entire branch before backtracking
+    \item Can detect cycles (back edges)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{DFS Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def dfs_recursive(graph, node, visited=None):
+    """DFS traversal (recursive)"""
+    if visited is None:
+        visited = set()
+
+    visited.add(node)
+    result = [node]
+
+    for neighbor in graph[node]:
+        if neighbor not in visited:
+            result.extend(dfs_recursive(graph, neighbor, visited))
+
+    return result
+
+def dfs_iterative(graph, start):
+    """DFS traversal (iterative)"""
+    visited = set()
+    stack = [start]
+    result = []
+
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            visited.add(node)
+            result.append(node)
+            stack.extend(reversed(graph[node]))  # Maintain order
+
+    return result
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{DFS Applications}
+  \textbf{1. Cycle Detection:}
+  \begin{itemize}
+    \item Find back edges (edge to ancestor)
+    \item Detect if graph contains cycles
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{2. Path Finding:}
+  \begin{itemize}
+    \item Find any path between two nodes
+    \item Find all paths (with backtracking)
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{3. Topological Sorting:}
+  \begin{itemize}
+    \item Order vertices in DAG
+    \item Process finish times in reverse
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{4. Maze Solving:}
+  \begin{itemize}
+    \item Find path through grid
+    \item Backtrack on dead ends
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{5. Strongly Connected Components:}
+  \begin{itemize}
+    \item Kosaraju's and Tarjan's algorithms
+    \item Two-pass DFS
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{BFS vs DFS Comparison}
+  \begin{center}
+  \begin{tabular}{|l|c|c|}
+    \hline
+    \textbf{Feature} & \textbf{BFS} & \textbf{DFS} \\
+    \hline
+    Data Structure & Queue & Stack/Recursion \\
+    \hline
+    Path Found & Shortest & Any path \\
+    \hline
+    Memory (worst) & $O(V)$ (wide) & $O(h)$ (height) \\
+    \hline
+    Best For & Shortest path & Cycle detection \\
+    \hline
+    Tree Traversal & Level-order & Pre/In/Post-order \\
+    \hline
+    Completeness & Yes & Yes \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  \textbf{When to Use BFS:}
+  \begin{itemize}
+    \item Find shortest path in unweighted graph
+    \item Process nodes by distance
+    \item Graph is very deep (avoid stack overflow)
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{When to Use DFS:}
+  \begin{itemize}
+    \item Detect cycles, find topological order
+    \item Explore all paths, backtracking problems
+    \item Graph is very wide (save memory)
+  \end{itemize}
+\end{frame}
+
+\section{Shortest Paths: Dijkstra/Bellman-Ford}
+
+\begin{frame}{Dijkstra's Algorithm}
+  \textbf{Single-Source Shortest Path (Non-Negative Weights)}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Initialize distances: source = 0, others = $\infty$
+    \item Use min-heap to get vertex with minimum distance
+    \item For each neighbor, relax edge if shorter path found
+    \item Mark vertex as visited
+    \item Repeat until all vertices processed
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O((V + E) \log V)$ with min-heap
+    \item \textbf{Space}: $O(V)$
+    \item \textbf{Requirement}: Non-negative edge weights
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Key Idea:}
+  \begin{itemize}
+    \item Greedy approach: always pick closest unvisited vertex
+    \item Correctness requires non-negative weights
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Dijkstra Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+import heapq
+
+def dijkstra(graph, start):
+    """Find shortest paths from start to all vertices"""
+    dist = {node: float('inf') for node in graph}
+    dist[start] = 0
+    pq = [(0, start)]  # (distance, node)
+    visited = set()
+
+    while pq:
+        d, node = heapq.heappop(pq)
+        if node in visited:
+            continue
+        visited.add(node)
+
+        for neighbor, weight in graph[node]:
+            new_dist = d + weight
+            if new_dist < dist[neighbor]:
+                dist[neighbor] = new_dist
+                heapq.heappush(pq, (new_dist, neighbor))
+
+    return dist
+
+# Example: graph[node] = [(neighbor, weight), ...]
+graph = {
+    'A': [('B', 4), ('C', 2)],
+    'B': [('C', 1), ('D', 5)],
+    'C': [('D', 8), ('E', 10)],
+    'D': [('E', 2)],
+    'E': []
+}
+print(dijkstra(graph, 'A'))  # {'A': 0, 'B': 4, 'C': 2, 'D': 9, 'E': 11}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Bellman-Ford Algorithm}
+  \textbf{Single-Source Shortest Path (Handles Negative Weights)}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Initialize distances: source = 0, others = $\infty$
+    \item Relax all edges $V-1$ times
+    \item Check for negative cycles (one more iteration)
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(V \times E)$
+    \item \textbf{Space}: $O(V)$
+    \item \textbf{Advantage}: Handles negative weights, detects negative cycles
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Why $V-1$ Iterations?}
+  \begin{itemize}
+    \item Longest simple path has $V-1$ edges
+    \item Each iteration extends shortest path by one edge
+    \item After $V-1$ iterations, all shortest paths found
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Bellman-Ford Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def bellman_ford(edges, n, start):
+    """
+    Find shortest paths, detect negative cycles
+    edges: list of (u, v, weight)
+    """
+    dist = [float('inf')] * n
+    dist[start] = 0
+
+    # Relax edges V-1 times
+    for _ in range(n - 1):
+        for u, v, weight in edges:
+            if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+                dist[v] = dist[u] + weight
+
+    # Check for negative cycles
+    for u, v, weight in edges:
+        if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+            return None  # Negative cycle detected
+
+    return dist
+
+# Example
+edges = [(0, 1, 4), (0, 2, 2), (1, 2, -3), (2, 3, 2), (3, 1, 1)]
+n = 4
+print(bellman_ford(edges, n, 0))
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Dijkstra vs Bellman-Ford}
+  \begin{center}
+  \begin{tabular}{|l|c|c|}
+    \hline
+    \textbf{Feature} & \textbf{Dijkstra} & \textbf{Bellman-Ford} \\
+    \hline
+    Time Complexity & $O(E \log V)$ & $O(V \times E)$ \\
+    \hline
+    Negative Weights & No & Yes \\
+    \hline
+    Negative Cycles & Cannot detect & Detects \\
+    \hline
+    Implementation & Min-heap & Nested loops \\
+    \hline
+    Best For & Fast, non-negative & Negative weights \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  \textbf{Floyd-Warshall} (All-Pairs Shortest Paths):
+  \begin{itemize}
+    \item \textbf{Time}: $O(V^3)$
+    \item Finds shortest paths between all pairs
+    \item Handles negative weights
+    \item Uses dynamic programming
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Choosing Algorithm:}
+  \begin{itemize}
+    \item Non-negative weights $\rightarrow$ Dijkstra (faster)
+    \item Negative weights $\rightarrow$ Bellman-Ford
+    \item All pairs $\rightarrow$ Floyd-Warshall or run Dijkstra $V$ times
+  \end{itemize}
+\end{frame}
+
+\section{Minimum Spanning Trees: Kruskal/Prim}
+
+\begin{frame}{Minimum Spanning Tree (MST)}
+  \textbf{Tree Connecting All Vertices with Minimum Total Weight}
+
+  \vspace{0.3cm}
+  \textbf{Properties:}
+  \begin{itemize}
+    \item Connects all $V$ vertices
+    \item Has exactly $V-1$ edges
+    \item No cycles (it's a tree)
+    \item Minimum total edge weight
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Applications:}
+  \begin{itemize}
+    \item Network design (minimize cable length)
+    \item Approximation algorithms (TSP)
+    \item Clustering algorithms
+    \item Image segmentation
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Two Main Algorithms:}
+  \begin{itemize}
+    \item \textbf{Kruskal's}: Sort edges, add if no cycle (edge-based)
+    \item \textbf{Prim's}: Grow tree from vertex (vertex-based)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Kruskal's Algorithm}
+  \textbf{Sort Edges, Add If Doesn't Create Cycle}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Sort all edges by weight (ascending)
+    \item Initialize Union-Find structure
+    \item For each edge $(u, v)$:
+    \begin{itemize}
+      \item If $u$ and $v$ in different components, add edge
+      \item Union the components
+    \end{itemize}
+    \item Stop when $V-1$ edges added
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(E \log E)$ (dominated by sorting)
+    \item \textbf{Space}: $O(V)$ for Union-Find
+    \item \textbf{Best for}: Sparse graphs
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Key Data Structure:}
+  \begin{itemize}
+    \item Union-Find (Disjoint Set Union) for cycle detection
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Kruskal Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])  # Path compression
+        return self.parent[x]
+
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return False  # Already in same set
+        if self.rank[px] < self.rank[py]:
+            self.parent[px] = py
+        elif self.rank[px] > self.rank[py]:
+            self.parent[py] = px
+        else:
+            self.parent[py] = px
+            self.rank[px] += 1
+        return True
+
+def kruskal(n, edges):
+    """edges: list of (weight, u, v)"""
+    edges.sort()  # Sort by weight
+    uf = UnionFind(n)
+    mst, total = [], 0
+
+    for weight, u, v in edges:
+        if uf.union(u, v):
+            mst.append((u, v, weight))
+            total += weight
+
+    return total, mst
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Prim's Algorithm}
+  \textbf{Grow Tree from Starting Vertex}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Start with any vertex
+    \item Add to MST
+    \item Repeat until all vertices added:
+    \begin{itemize}
+      \item Find minimum weight edge from MST to non-MST vertex
+      \item Add that edge and vertex to MST
+    \end{itemize}
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(E \log V)$ with min-heap
+    \item \textbf{Space}: $O(V)$
+    \item \textbf{Best for}: Dense graphs
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Key Data Structure:}
+  \begin{itemize}
+    \item Min-heap to efficiently find minimum edge
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Similarity to Dijkstra:}
+  \begin{itemize}
+    \item Both use greedy approach with min-heap
+    \item Prim: minimize edge weight, Dijkstra: minimize path distance
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Prim Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+import heapq
+
+def prim(graph, start):
+    """
+    graph: {node: [(neighbor, weight), ...]}
+    """
+    mst, total = [], 0
+    visited = {start}
+    edges = [(weight, start, neighbor)
+             for neighbor, weight in graph[start]]
+    heapq.heapify(edges)
+
+    while edges:
+        weight, u, v = heapq.heappop(edges)
+        if v in visited:
+            continue
+
+        visited.add(v)
+        mst.append((u, v, weight))
+        total += weight
+
+        for neighbor, w in graph[v]:
+            if neighbor not in visited:
+                heapq.heappush(edges, (w, v, neighbor))
+
+    return total, mst
+
+# Example
+graph = {
+    'A': [('B', 4), ('C', 2)],
+    'B': [('A', 4), ('C', 1), ('D', 5)],
+    'C': [('A', 2), ('B', 1), ('D', 8)],
+    'D': [('B', 5), ('C', 8)]
+}
+print(prim(graph, 'A'))  # (7, [('A', 'C', 2), ('C', 'B', 1), ('B', 'D', 5)])
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Kruskal vs Prim}
+  \begin{center}
+  \begin{tabular}{|l|c|c|}
+    \hline
+    \textbf{Feature} & \textbf{Kruskal} & \textbf{Prim} \\
+    \hline
+    Time Complexity & $O(E \log E)$ & $O(E \log V)$ \\
+    \hline
+    Approach & Edge-based & Vertex-based \\
+    \hline
+    Data Structure & Union-Find & Min-heap \\
+    \hline
+    Best For & Sparse graphs & Dense graphs \\
+    \hline
+    Starting Point & N/A (all edges) & Any vertex \\
+    \hline
+    Works on Disconnected & Partial MST & No \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  \textbf{Time Complexity Notes:}
+  \begin{itemize}
+    \item Kruskal: $O(E \log E) = O(E \log V)$ since $E \leq V^2$
+    \item Prim with Fibonacci heap: $O(E + V \log V)$ (theoretical)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Practical Choice:}
+  \begin{itemize}
+    \item Sparse graph ($E \approx V$): Kruskal slightly better
+    \item Dense graph ($E \approx V^2$): Prim slightly better
+    \item Both give same MST weight (may differ in edges)
+  \end{itemize}
+\end{frame}
+
+\section{Topological Sort and DAG DP}
+
+\begin{frame}{Topological Sort}
+  \textbf{Linear Ordering of Vertices in DAG}
+
+  \vspace{0.3cm}
+  \textbf{Definition:}
+  \begin{itemize}
+    \item For every directed edge $(u, v)$, $u$ comes before $v$ in ordering
+    \item Only exists for Directed Acyclic Graphs (DAGs)
+    \item Can be multiple valid orderings
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Applications:}
+  \begin{itemize}
+    \item \textbf{Course scheduling}: Prerequisite dependencies
+    \item \textbf{Build systems}: Compile dependencies (Makefile)
+    \item \textbf{Task scheduling}: Task dependencies
+    \item \textbf{Formula evaluation}: Dependency graphs
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Two Main Algorithms:}
+  \begin{itemize}
+    \item \textbf{Kahn's Algorithm}: BFS-based, uses in-degrees
+    \item \textbf{DFS-based}: Process vertices by finish time
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Topological Sort: Kahn's Algorithm}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+from collections import deque
+
+def topological_sort(graph, n):
+    """
+    Kahn's algorithm (BFS-based)
+    graph: adjacency list
+    Returns: topological order or None if cycle exists
+    """
+    # Calculate in-degrees
+    in_degree = [0] * n
+    for node in range(n):
+        for neighbor in graph[node]:
+            in_degree[neighbor] += 1
+
+    # Start with vertices having in-degree 0
+    queue = deque([i for i in range(n) if in_degree[i] == 0])
+    result = []
+
+    while queue:
+        node = queue.popleft()
+        result.append(node)
+
+        for neighbor in graph[node]:
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0:
+                queue.append(neighbor)
+
+    # If not all vertices processed, graph has cycle
+    return result if len(result) == n else None
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{DAG Dynamic Programming}
+  \textbf{DP on Directed Acyclic Graphs}
+
+  \vspace{0.3cm}
+  \textbf{Key Idea:}
+  \begin{itemize}
+    \item Process vertices in topological order
+    \item Each vertex computed after all dependencies
+    \item No cycles $\rightarrow$ no circular dependencies
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Common Problems:}
+  \begin{itemize}
+    \item \textbf{Longest/Shortest Path in DAG}: $O(V + E)$
+    \item \textbf{Count paths}: Number of paths from source to sink
+    \item \textbf{Critical Path Method}: Project scheduling
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Template:}
+  \begin{enumerate}
+    \item Compute topological order
+    \item Initialize DP array
+    \item Process vertices in topological order
+    \item Update DP based on edges
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{DAG DP: Longest Path}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+def longest_path_dag(graph, n):
+    """Find longest path in DAG"""
+    topo_order = topological_sort(graph, n)
+    if topo_order is None:
+        return None  # Cycle exists
+
+    dp = [0] * n
+
+    for node in topo_order:
+        for neighbor in graph[node]:
+            dp[neighbor] = max(dp[neighbor], dp[node] + 1)
+
+    return max(dp)
+
+# Example: Course scheduling with prerequisites
+# Find longest chain of courses
+graph = {
+    0: [1, 2],
+    1: [3],
+    2: [3],
+    3: []
+}
+print(longest_path_dag(graph, 4))  # Output: 2
+\end{lstlisting}
+\end{frame}
+
+\section{Strongly Connected Components}
+
+\begin{frame}{Strongly Connected Components (SCC)}
+  \textbf{Maximal Subgraphs Where Every Vertex Reaches Every Other}
+
+  \vspace{0.3cm}
+  \textbf{Definition:}
+  \begin{itemize}
+    \item In directed graph, SCC is maximal set of vertices
+    \item For any $u, v$ in SCC, there exists path $u \rightarrow v$ and $v \rightarrow u$
+    \item Condensation graph (SCC graph) is always a DAG
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Applications:}
+  \begin{itemize}
+    \item \textbf{2-SAT}: Satisfiability of Boolean formulas
+    \item \textbf{Reachability queries}: Which vertices can reach which
+    \item \textbf{Deadlock detection}: Circular dependencies
+    \item \textbf{Web page ranking}: Identify tightly connected clusters
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Algorithms:}
+  \begin{itemize}
+    \item \textbf{Kosaraju's}: Two-pass DFS (simpler)
+    \item \textbf{Tarjan's}: Single-pass DFS (more efficient)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Kosaraju's Algorithm}
+\textbf{Two-Pass DFS Approach}
+
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def kosaraju_scc(graph, n):
+    """Find strongly connected components"""
+    # Step 1: DFS to get finish order
+    visited = [False] * n
+    finish_order = []
+
+    def dfs1(node):
+        visited[node] = True
+        for neighbor in graph[node]:
+            if not visited[neighbor]:
+                dfs1(neighbor)
+        finish_order.append(node)
+
+    for i in range(n):
+        if not visited[i]:
+            dfs1(i)
+
+    # Step 2: Transpose graph
+    transpose = [[] for _ in range(n)]
+    for u in range(n):
+        for v in graph[u]:
+            transpose[v].append(u)
+
+    # Step 3: DFS on transpose in reverse finish order
+    visited = [False] * n
+    components = []
+
+    def dfs2(node, component):
+        visited[node] = True
+        component.append(node)
+        for neighbor in transpose[node]:
+            if not visited[neighbor]:
+                dfs2(neighbor, component)
+
+    for node in reversed(finish_order):
+        if not visited[node]:
+            component = []
+            dfs2(node, component)
+            components.append(component)
+
+    return components
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Kosaraju's Algorithm: How It Works}
+  \textbf{Three Steps:}
+
+  \vspace{0.3cm}
+  \textbf{Step 1: First DFS}
+  \begin{itemize}
+    \item Run DFS on original graph
+    \item Record finish times (when vertex fully explored)
+    \item Vertices in same SCC finish close together
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Step 2: Transpose Graph}
+  \begin{itemize}
+    \item Reverse all edge directions
+    \item If $u \rightarrow v$ in $G$, then $v \rightarrow u$ in $G^T$
+    \item SCCs remain the same
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Step 3: Second DFS}
+  \begin{itemize}
+    \item Process vertices in reverse finish order
+    \item Each DFS tree in $G^T$ is one SCC
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Complexity:}
+  \begin{itemize}
+    \item Time: $O(V + E)$ (two DFS passes)
+    \item Space: $O(V)$ for transpose graph
+  \end{itemize}
+\end{frame}
+
+\section{Flow Algorithms Overview}
+
+\begin{frame}{Maximum Flow Problem}
+  \textbf{Find Maximum Flow from Source to Sink}
+
+  \vspace{0.3cm}
+  \textbf{Definition:}
+  \begin{itemize}
+    \item Given: Directed graph with edge capacities
+    \item Find: Maximum amount of flow from source $s$ to sink $t$
+    \item Constraints: Flow $\leq$ capacity, flow conservation
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Key Concepts:}
+  \begin{itemize}
+    \item \textbf{Capacity}: Maximum flow on edge
+    \item \textbf{Residual graph}: Remaining capacity after flow
+    \item \textbf{Augmenting path}: Path with available capacity
+    \item \textbf{Cut}: Partition of vertices into two sets
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Max-Flow Min-Cut Theorem:}
+  \begin{itemize}
+    \item Maximum flow value = Minimum cut capacity
+    \item Fundamental result in network flow theory
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Ford-Fulkerson Method}
+  \textbf{Find Augmenting Paths Until No More Exist}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Initialize flow to 0
+    \item While augmenting path exists:
+    \begin{itemize}
+      \item Find augmenting path (any path with capacity)
+      \item Compute bottleneck capacity
+      \item Add flow along path
+      \item Update residual graph
+    \end{itemize}
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Edmonds-Karp Algorithm:}
+  \begin{itemize}
+    \item Ford-Fulkerson with BFS for finding paths
+    \item \textbf{Time}: $O(V \times E^2)$ (guaranteed polynomial)
+    \item Always finds shortest augmenting path
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(V \times E^2)$ for Edmonds-Karp
+    \item \textbf{Space}: $O(V^2)$ for flow/capacity matrices
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Edmonds-Karp Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+from collections import deque
+
+def max_flow(capacity, source, sink):
+    """Edmonds-Karp algorithm for maximum flow"""
+    n = len(capacity)
+    flow = [[0] * n for _ in range(n)]
+
+    def bfs():
+        """Find augmenting path using BFS"""
+        parent = [-1] * n
+        visited = [False] * n
+        visited[source] = True
+        queue = deque([(source, float('inf'))])
+
+        while queue:
+            u, min_cap = queue.popleft()
+
+            for v in range(n):
+                if not visited[v] and capacity[u][v] - flow[u][v] > 0:
+                    visited[v] = True
+                    parent[v] = u
+                    new_cap = min(min_cap, capacity[u][v] - flow[u][v])
+
+                    if v == sink:
+                        return parent, new_cap
+                    queue.append((v, new_cap))
+
+        return None, 0
+
+    total_flow = 0
+    while True:
+        parent, path_flow = bfs()
+        if path_flow == 0:
+            break
+
+        total_flow += path_flow
+        v = sink
+        while v != source:
+            u = parent[v]
+            flow[u][v] += path_flow
+            flow[v][u] -= path_flow  # Reverse flow
+            v = u
+
+    return total_flow
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Flow Applications}
+  \textbf{1. Maximum Bipartite Matching:}
+  \begin{itemize}
+    \item Model as flow problem
+    \item Add source to left vertices, sink from right vertices
+    \item Maximum flow = maximum matching
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{2. Minimum Cut:}
+  \begin{itemize}
+    \item Find minimum capacity cut separating $s$ and $t$
+    \item Max flow = min cut (by theorem)
+    \item Applications: Network reliability, image segmentation
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{3. Network Routing:}
+  \begin{itemize}
+    \item Optimize data flow through network
+    \item Consider bandwidth constraints
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{4. Assignment Problems:}
+  \begin{itemize}
+    \item Match workers to tasks optimally
+    \item Constraint satisfaction
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{5. Circulation with Demands:}
+  \begin{itemize}
+    \item Flow with lower and upper bounds
+    \item Supply and demand at vertices
+  \end{itemize}
+\end{frame}
+
+\section{Summary}
+
+\begin{frame}{Key Takeaways}
+  \textbf{Traversal Algorithms:}
+  \begin{itemize}
+    \item \textbf{BFS}: Shortest path, level-order, $O(V + E)$
+    \item \textbf{DFS}: Cycle detection, topological sort, $O(V + E)$
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Shortest Path Algorithms:}
+  \begin{itemize}
+    \item \textbf{Dijkstra}: Non-negative weights, $O(E \log V)$
+    \item \textbf{Bellman-Ford}: Negative weights, detects cycles, $O(VE)$
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Minimum Spanning Tree:}
+  \begin{itemize}
+    \item \textbf{Kruskal}: Sort edges, Union-Find, $O(E \log E)$
+    \item \textbf{Prim}: Grow tree, min-heap, $O(E \log V)$
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Advanced Topics:}
+  \begin{itemize}
+    \item \textbf{Topological Sort}: Order DAG vertices, $O(V + E)$
+    \item \textbf{SCC}: Kosaraju's/Tarjan's, $O(V + E)$
+    \item \textbf{Max Flow}: Edmonds-Karp, $O(VE^2)$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Complexity Summary}
+  \begin{center}
+  \begin{tabular}{|l|c|c|}
+    \hline
+    \textbf{Algorithm} & \textbf{Time} & \textbf{Space} \\
+    \hline
+    BFS & $O(V + E)$ & $O(V)$ \\
+    \hline
+    DFS & $O(V + E)$ & $O(V)$ \\
+    \hline
+    Dijkstra & $O((V+E) \log V)$ & $O(V)$ \\
+    \hline
+    Bellman-Ford & $O(VE)$ & $O(V)$ \\
+    \hline
+    Kruskal & $O(E \log E)$ & $O(V)$ \\
+    \hline
+    Prim & $O(E \log V)$ & $O(V)$ \\
+    \hline
+    Topological Sort & $O(V + E)$ & $O(V)$ \\
+    \hline
+    Kosaraju SCC & $O(V + E)$ & $O(V)$ \\
+    \hline
+    Edmonds-Karp & $O(VE^2)$ & $O(V^2)$ \\
+    \hline
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Practice Problems}
+  \textbf{BFS/DFS:}
+  \begin{itemize}
+    \item Number of islands (LeetCode 200)
+    \item Word ladder (LeetCode 127)
+    \item Course schedule (LeetCode 207, 210)
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Shortest Paths:}
+  \begin{itemize}
+    \item Network delay time (LeetCode 743)
+    \item Cheapest flights (LeetCode 787)
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{MST:}
+  \begin{itemize}
+    \item Min cost to connect all points (LeetCode 1584)
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Advanced:}
+  \begin{itemize}
+    \item Critical connections (LeetCode 1192)
+    \item Alien dictionary (LeetCode 269)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Resources}
+  \textbf{Books:}
+  \begin{itemize}
+    \item "Introduction to Algorithms" (CLRS) - Chapters 22-26
+    \item "Algorithm Design" (Kleinberg \& Tardos)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Online:}
+  \begin{itemize}
+    \item VisuAlgo - Graph algorithm visualizations
+    \item LeetCode - Graph problems
+    \item Codeforces - Graph theory tutorials
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Advanced Topics:}
+  \begin{itemize}
+    \item A* search algorithm
+    \item Network simplex for min-cost flow
+    \item Hopcroft-Karp for bipartite matching
+    \item Tarjan's algorithm for SCC
+  \end{itemize}
+\end{frame}
+
+\end{document}

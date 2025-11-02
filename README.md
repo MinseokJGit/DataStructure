@@ -2,6 +2,9 @@
 
 A comprehensive educational repository containing materials for learning data structures and algorithms, designed for progressive skill development from foundations to advanced concepts.
 
+
+### [Course Page](https://dgistpl.github.io/courses/ai_ds/2025/)
+
 ## 🎯 Overview
 
 This repository provides a structured curriculum for mastering data structures and algorithms through:

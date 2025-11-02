@@ -1,0 +1,1902 @@
+%----------------------------------------------------------------------------------------
+%    PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+\documentclass[aspectratio=169,xcolor=dvipsnames]{beamer}
+\makeatletter
+\def\input@path{{../BeamerTemplate/theme/}}
+\makeatother
+\usetheme{CleanEasy}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{fix-cm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes, arrows, calc, decorations.pathreplacing, arrows.meta, backgrounds, patterns, overlay-beamer-styles}
+\usepackage{etoolbox}
+\usepackage{animate}
+
+%----------------------------------------------------------------------------------------
+%    LAYOUT CONFIGURATION
+%----------------------------------------------------------------------------------------
+\input{../BeamerTemplate/configs/configs}
+
+%----------------------------------------------------------------------------------------
+%    TITLE PAGE CONFIGURATION
+%----------------------------------------------------------------------------------------
+\title{Algorithms with Data Structures}
+\subtitle{Sorting, Searching, Graph Algorithms, and Optimization Patterns}
+\author{Minseok Jeon}
+\institute{DGIST}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+% Introduction
+\section{Introduction}
+
+\begin{frame}{Course Overview}
+  \begin{itemize}
+    \item \textbf{Sorting Algorithms}: Comparison-based and non-comparison-based
+    \item \textbf{Searching Algorithms}: Linear, binary, and advanced techniques
+    \item \textbf{Graph Algorithms}: Shortest path and minimum spanning tree
+    \item \textbf{Dynamic Programming}: Optimization with data structures
+    \item \textbf{Complexity-Driven Design}: Choosing the right approach
+    \item \textbf{Practical Patterns}: Two pointers, sliding window, and more
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Why Algorithms + Data Structures?}
+  \begin{block}{Synergy}
+    Algorithms are meaningless without efficient data structures
+  \end{block}
+
+  \begin{itemize}
+    \item Data structures enable efficient algorithm implementation
+    \item Algorithm choice depends on data structure characteristics
+    \item Complexity analysis requires understanding both
+    \item Real-world performance depends on the combination
+  \end{itemize}
+\end{frame}
+
+%% Sorting Algorithms
+\section{Sorting Algorithms}
+
+\begin{frame}{Sorting: The Foundation}
+  \begin{block}{What is Sorting?}
+    Arranging elements in a specific order (ascending/descending)
+  \end{block}
+
+  \textbf{Two Categories:}
+  \begin{itemize}
+    \item \textbf{Comparison-based}: Compare elements to determine order
+    \item \textbf{Non-comparison-based}: Use element properties (e.g., digits)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Why It Matters:}
+  \begin{itemize}
+    \item Enables binary search ($O(\log n)$ vs $O(n)$)
+    \item Foundation for many algorithms
+    \item Common interview topic
+  \end{itemize}
+\end{frame}
+
+\subsection{Comparison-Based Sorting}
+
+\begin{frame}{Bubble Sort}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Compare adjacent elements
+        \item Swap if out of order
+        \item Repeat until sorted
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(n^2)$
+        \item Space: $O(1)$
+        \item Stable: Yes
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Example:}
+      \begin{align*}
+        &[5, 2, 8, 1, 9] \\
+        &[2, 5, 1, 8, 9] \\
+        &[2, 1, 5, 8, 9] \\
+        &[1, 2, 5, 8, 9]
+      \end{align*}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Small datasets
+        \item Educational purposes
+        \item Nearly sorted data
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Bubble Sort: Implementation}
+\begin{lstlisting}[language=Python]
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        swapped = False
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                swapped = True
+        if not swapped:
+            break  # Early termination
+    return arr
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Selection Sort}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Find minimum element
+        \item Swap with first unsorted position
+        \item Repeat for remaining elements
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(n^2)$
+        \item Space: $O(1)$
+        \item Stable: No
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Example:}
+      \begin{align*}
+        &[5, 2, 8, 1, 9] \\
+        &[1, 2, 8, 5, 9] \\
+        &[1, 2, 8, 5, 9] \\
+        &[1, 2, 5, 8, 9]
+      \end{align*}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Minimal swaps needed
+        \item Small datasets
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Insertion Sort}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Take next element
+        \item Insert into sorted portion
+        \item Shift elements as needed
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(n^2)$ average, $O(n)$ best
+        \item Space: $O(1)$
+        \item Stable: Yes
+        \item Adaptive: Yes
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Advantages:}
+      \begin{itemize}
+        \item Efficient for small datasets
+        \item Excellent for nearly sorted data
+        \item Online algorithm
+        \item Used in Timsort
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Small arrays ($n < 50$)
+        \item Nearly sorted data
+        \item Streaming data
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Merge Sort}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm (Divide \& Conquer):}
+      \begin{enumerate}
+        \item Divide array in half
+        \item Recursively sort each half
+        \item Merge sorted halves
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(n \log n)$ always
+        \item Space: $O(n)$
+        \item Stable: Yes
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Advantages:}
+      \begin{itemize}
+        \item Guaranteed $O(n \log n)$
+        \item Stable sorting
+        \item Parallelizable
+        \item Good for linked lists
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item External sorting
+        \item Linked lists
+        \item Stability required
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Quick Sort}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm (Divide \& Conquer):}
+      \begin{enumerate}
+        \item Choose pivot element
+        \item Partition around pivot
+        \item Recursively sort partitions
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(n \log n)$ avg, $O(n^2)$ worst
+        \item Space: $O(\log n)$ stack
+        \item Stable: No
+        \item In-place: Yes
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Pivot Selection:}
+      \begin{itemize}
+        \item First/Last: Simple but risky
+        \item Random: Better average case
+        \item Median-of-three: Balanced
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item General-purpose (most libraries)
+        \item Cache-efficient
+        \item In-place sorting needed
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Heap Sort}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Build max heap
+        \item Swap root with last element
+        \item Heapify remaining elements
+        \item Repeat
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(n \log n)$ always
+        \item Space: $O(1)$
+        \item Stable: No
+        \item In-place: Yes
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Advantages:}
+      \begin{itemize}
+        \item Guaranteed $O(n \log n)$
+        \item In-place sorting
+        \item No worst-case degradation
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Memory-constrained systems
+        \item Real-time systems
+        \item Embedded systems
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Comparison-Based Sorting: Summary}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{lccccc}
+      \hline
+      \textbf{Algorithm} & \textbf{Best} & \textbf{Average} & \textbf{Worst} & \textbf{Space} & \textbf{Stable} \\
+      \hline
+      Bubble & $O(n)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & Yes \\
+      Selection & $O(n^2)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & No \\
+      Insertion & $O(n)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & Yes \\
+      Merge & $O(n \log n)$ & $O(n \log n)$ & $O(n \log n)$ & $O(n)$ & Yes \\
+      Quick & $O(n \log n)$ & $O(n \log n)$ & $O(n^2)$ & $O(\log n)$ & No \\
+      Heap & $O(n \log n)$ & $O(n \log n)$ & $O(n \log n)$ & $O(1)$ & No \\
+      \hline
+    \end{tabular}
+  \end{table}
+
+  \vspace{0.3cm}
+  \textbf{Lower Bound}: $\Omega(n \log n)$ for comparison-based sorting
+\end{frame}
+
+\subsection{Non-Comparison-Based Sorting}
+
+\begin{frame}{Counting Sort}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Count occurrences of each value
+        \item Calculate cumulative counts
+        \item Place elements in sorted order
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(n + k)$
+        \item Space: $O(k)$
+        \item Stable: Yes
+        \item $k$ = range of input
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Constraints:}
+      \begin{itemize}
+        \item Integer keys only
+        \item Known range required
+        \item Range must be reasonable
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Small integer range
+        \item Ages, grades, scores
+        \item Subroutine for radix sort
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Radix Sort}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Sort by least significant digit
+        \item Move to next digit
+        \item Repeat until all digits processed
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(d \cdot (n + k))$
+        \item Space: $O(n + k)$
+        \item Stable: Yes
+        \item $d$ = number of digits
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Variants:}
+      \begin{itemize}
+        \item LSD: Least significant digit first
+        \item MSD: Most significant digit first
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Fixed-length integers
+        \item Strings of equal length
+        \item Large datasets with small digit count
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Bucket Sort}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Distribute elements into buckets
+        \item Sort each bucket individually
+        \item Concatenate sorted buckets
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(n + k)$ average
+        \item Space: $O(n + k)$
+        \item Stable: Depends on sub-sort
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Requirements:}
+      \begin{itemize}
+        \item Uniform distribution
+        \item Known input range
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Uniformly distributed data
+        \item Floating-point numbers [0, 1)
+        \item External sorting
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Non-Comparison Sorting: Summary}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{lcccc}
+      \hline
+      \textbf{Algorithm} & \textbf{Time} & \textbf{Space} & \textbf{Stable} & \textbf{Constraints} \\
+      \hline
+      Counting & $O(n + k)$ & $O(k)$ & Yes & Integer, known range \\
+      Radix & $O(d(n + k))$ & $O(n + k)$ & Yes & Fixed-length keys \\
+      Bucket & $O(n + k)$ & $O(n + k)$ & Varies & Uniform distribution \\
+      \hline
+    \end{tabular}
+  \end{table}
+
+  \vspace{0.3cm}
+  \begin{block}{Key Insight}
+    Non-comparison sorts can beat the $\Omega(n \log n)$ lower bound by exploiting specific properties of the input data
+  \end{block}
+\end{frame}
+
+%% Searching Algorithms
+\section{Searching Algorithms}
+
+\begin{frame}{Searching: Finding Elements Efficiently}
+  \begin{block}{Goal}
+    Find the position or existence of a target element in a dataset
+  \end{block}
+
+  \vspace{0.3cm}
+  \textbf{Categories:}
+  \begin{itemize}
+    \item \textbf{Basic}: Linear search
+    \item \textbf{Sorted Array}: Binary search and variants
+    \item \textbf{Hash-based}: Constant time lookup
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Trade-offs:}
+  \begin{itemize}
+    \item Preprocessing vs. query time
+    \item Space vs. time complexity
+    \item Data structure requirements
+  \end{itemize}
+\end{frame}
+
+\subsection{Basic Search}
+
+\begin{frame}{Linear Search}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Check each element sequentially
+        \item Return index if found
+        \item Return -1 if not found
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(n)$
+        \item Space: $O(1)$
+        \item No preprocessing needed
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Advantages:}
+      \begin{itemize}
+        \item Works on unsorted data
+        \item Simple implementation
+        \item No extra space
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Small datasets
+        \item Unsorted data
+        \item One-time searches
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\subsection{Sorted Array Search}
+
+\begin{frame}{Binary Search}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm (Divide \& Conquer):}
+      \begin{enumerate}
+        \item Compare target with middle element
+        \item Eliminate half of search space
+        \item Repeat until found or exhausted
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(\log n)$
+        \item Space: $O(1)$ iterative, $O(\log n)$ recursive
+        \item \textbf{Requires sorted array}
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Variants:}
+      \begin{itemize}
+        \item Find first occurrence
+        \item Find last occurrence
+        \item Count occurrences
+        \item Find insertion position
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Sorted datasets
+        \item Repeated queries
+        \item Most common search algorithm
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Binary Search: Template}
+\begin{lstlisting}[language=Python]
+def binary_search(arr, target):
+    left, right = 0, len(arr) - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return -1  # Not found
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Interpolation Search}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Estimate position using interpolation
+        \item Check estimated position
+        \item Adjust search range
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Position Formula:}
+      \begin{align*}
+        \text{pos} = \text{low} + \frac{(x - arr[\text{low}])}{(arr[\text{high}] - arr[\text{low}])} \times (\text{high} - \text{low})
+      \end{align*}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(\log \log n)$ avg, $O(n)$ worst
+        \item Space: $O(1)$
+        \item Requires uniform distribution
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Uniformly distributed data
+        \item Large sorted datasets
+        \item Phone books, dictionaries
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exponential Search}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Find range with exponential growth
+        \item Perform binary search in range
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(\log n)$
+        \item Space: $O(1)$
+        \item Better for unbounded arrays
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Advantages:}
+      \begin{itemize}
+        \item Works on unbounded/infinite arrays
+        \item Better than binary when target is near start
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Unbounded search space
+        \item Target likely near beginning
+        \item Infinite streams
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Jump Search}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Jump by fixed block size $\sqrt{n}$
+        \item Find block containing target
+        \item Linear search within block
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(\sqrt{n})$
+        \item Space: $O(1)$
+        \item Optimal jump: $\sqrt{n}$
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Advantages:}
+      \begin{itemize}
+        \item Better than linear for sorted arrays
+        \item Fewer comparisons than binary
+        \item Good for jumping in physical storage
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Systems where jumping back is costly
+        \item Disk-based systems
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Ternary Search}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item Divide range into three parts
+        \item Determine which third contains target
+        \item Recursively search that third
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(\log_3 n)$
+        \item More comparisons per iteration than binary
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Comparison with Binary:}
+      \begin{itemize}
+        \item $\log_3 n < \log_2 n$ (fewer iterations)
+        \item But 2 comparisons per iteration vs 1
+        \item Binary is generally faster
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Finding max/min of unimodal function
+        \item Optimization problems
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\subsection{Hash-Based Search}
+
+\begin{frame}{Hash Table Search}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Approach:}
+      \begin{enumerate}
+        \item Hash key to index
+        \item Access bucket at index
+        \item Handle collisions if needed
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(1)$ avg, $O(n)$ worst
+        \item Space: $O(n)$
+        \item Requires hash function
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Trade-offs:}
+      \begin{itemize}
+        \item Space for time
+        \item No ordering maintained
+        \item Hash collisions possible
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Frequent lookups
+        \item Unordered data
+        \item Database indexing
+        \item Caching
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Searching Algorithms: Summary}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{lccl}
+      \hline
+      \textbf{Algorithm} & \textbf{Time} & \textbf{Space} & \textbf{Requirement} \\
+      \hline
+      Linear & $O(n)$ & $O(1)$ & None \\
+      Binary & $O(\log n)$ & $O(1)$ & Sorted \\
+      Interpolation & $O(\log \log n)$ & $O(1)$ & Sorted + Uniform \\
+      Exponential & $O(\log n)$ & $O(1)$ & Sorted + Unbounded \\
+      Jump & $O(\sqrt{n})$ & $O(1)$ & Sorted \\
+      Ternary & $O(\log_3 n)$ & $O(1)$ & Sorted / Unimodal \\
+      Hash Table & $O(1)$ avg & $O(n)$ & Hash function \\
+      \hline
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+%% Graph Algorithms
+\section{Graph Algorithms}
+
+\begin{frame}{Graph Algorithms Overview}
+  \begin{block}{Graph Problems}
+    Graphs model relationships between entities
+  \end{block}
+
+  \vspace{0.3cm}
+  \textbf{Core Categories:}
+  \begin{itemize}
+    \item \textbf{Shortest Path}: Find minimum-cost path between vertices
+    \item \textbf{Minimum Spanning Tree (MST)}: Connect all vertices with minimum total edge weight
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Applications:}
+  \begin{itemize}
+    \item Network routing, GPS navigation
+    \item Social networks, recommendation systems
+    \item Circuit design, network infrastructure
+  \end{itemize}
+\end{frame}
+
+\subsection{Shortest Path Algorithms}
+
+\begin{frame}{Dijkstra's Algorithm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm (Greedy):}
+      \begin{enumerate}
+        \item Initialize distances (source = 0, others = $\infty$)
+        \item Extract minimum distance vertex
+        \item Relax edges from that vertex
+        \item Repeat until all processed
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Data Structure:}
+      \begin{itemize}
+        \item Priority queue (min-heap)
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O((V + E) \log V)$ with heap
+        \item Space: $O(V)$
+        \item \textbf{Non-negative weights only}
+        \item Single-source shortest path
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item GPS navigation
+        \item Network routing (OSPF)
+        \item Most common shortest path
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Dijkstra's Algorithm: Implementation}
+\begin{lstlisting}[language=Python]
+import heapq
+
+def dijkstra(graph, start):
+    distances = {v: float('inf') for v in graph}
+    distances[start] = 0
+    pq = [(0, start)]  # (distance, vertex)
+
+    while pq:
+        curr_dist, u = heapq.heappop(pq)
+        if curr_dist > distances[u]:
+            continue
+
+        for v, weight in graph[u]:
+            distance = curr_dist + weight
+            if distance < distances[v]:
+                distances[v] = distance
+                heapq.heappush(pq, (distance, v))
+
+    return distances
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Bellman-Ford Algorithm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm (Dynamic Programming):}
+      \begin{enumerate}
+        \item Initialize distances
+        \item Relax all edges $V-1$ times
+        \item Check for negative cycles
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(VE)$
+        \item Space: $O(V)$
+        \item Handles negative weights
+        \item Detects negative cycles
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Advantages over Dijkstra:}
+      \begin{itemize}
+        \item Negative edge weights OK
+        \item Detects negative cycles
+        \item Simpler implementation
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Graphs with negative weights
+        \item Detecting arbitrage opportunities
+        \item Distance vector routing
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Floyd-Warshall Algorithm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm (Dynamic Programming):}
+      \begin{enumerate}
+        \item Initialize distance matrix
+        \item For each intermediate vertex $k$
+        \item Try path through $k$
+        \item Update if shorter
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{DP Formula:}
+      \begin{align*}
+        \text{dist}[i][j] = \min(&\text{dist}[i][j], \\
+        &\text{dist}[i][k] + \text{dist}[k][j])
+      \end{align*}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(V^3)$
+        \item Space: $O(V^2)$
+        \item All-pairs shortest paths
+        \item Handles negative weights
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Dense graphs
+        \item All-pairs distances needed
+        \item Transitive closure
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{A* Search Algorithm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm (Informed Search):}
+      \begin{enumerate}
+        \item Use heuristic function $h(n)$
+        \item Evaluate $f(n) = g(n) + h(n)$
+        \item Expand most promising node
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Components:}
+      \begin{itemize}
+        \item $g(n)$: Cost from start to $n$
+        \item $h(n)$: Estimated cost from $n$ to goal
+        \item $f(n)$: Total estimated cost
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Heuristic Properties:}
+      \begin{itemize}
+        \item \textbf{Admissible}: $h(n) \le$ true cost
+        \item \textbf{Consistent}: $h(n) \le c(n,n') + h(n')$
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Pathfinding in games
+        \item Robotics navigation
+        \item GPS with traffic
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Shortest Path: Comparison}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{lcccc}
+      \hline
+      \textbf{Algorithm} & \textbf{Time} & \textbf{Type} & \textbf{Negative?} & \textbf{Use Case} \\
+      \hline
+      Dijkstra & $O((V+E) \log V)$ & Single & No & General \\
+      Bellman-Ford & $O(VE)$ & Single & Yes & Negative weights \\
+      Floyd-Warshall & $O(V^3)$ & All-pairs & Yes & Dense graphs \\
+      A* & Varies & Single & No & Heuristic available \\
+      \hline
+    \end{tabular}
+  \end{table}
+
+  \vspace{0.3cm}
+  \begin{block}{Selection Guide}
+    \begin{itemize}
+      \item Non-negative weights $\to$ Dijkstra
+      \item Negative weights $\to$ Bellman-Ford
+      \item All pairs needed $\to$ Floyd-Warshall
+      \item Known goal + heuristic $\to$ A*
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Minimum Spanning Tree (MST)}
+
+\begin{frame}{Minimum Spanning Tree: Definition}
+  \begin{block}{MST Problem}
+    Find a tree that connects all vertices with minimum total edge weight
+  \end{block}
+
+  \vspace{0.3cm}
+  \textbf{Properties:}
+  \begin{itemize}
+    \item Connects all $V$ vertices
+    \item Has exactly $V-1$ edges
+    \item Acyclic (no cycles)
+    \item Minimum total weight
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Applications:}
+  \begin{itemize}
+    \item Network design (minimize cable length)
+    \item Cluster analysis
+    \item Approximation algorithms
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Kruskal's Algorithm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm (Greedy):}
+      \begin{enumerate}
+        \item Sort all edges by weight
+        \item For each edge (increasing weight):
+        \begin{itemize}
+          \item If doesn't form cycle, add it
+        \end{itemize}
+        \item Stop when $V-1$ edges added
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Data Structure:}
+      \begin{itemize}
+        \item Union-Find (Disjoint Set)
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O(E \log E)$ or $O(E \log V)$
+        \item Space: $O(V)$ for Union-Find
+        \item Edge-based approach
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Sparse graphs ($E \ll V^2$)
+        \item Edge list representation
+        \item Parallel implementation possible
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Prim's Algorithm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Algorithm (Greedy):}
+      \begin{enumerate}
+        \item Start with arbitrary vertex
+        \item Add minimum edge to tree
+        \item Expand tree vertex by vertex
+        \item Stop when all vertices included
+      \end{enumerate}
+
+      \vspace{0.3cm}
+      \textbf{Data Structure:}
+      \begin{itemize}
+        \item Priority queue (min-heap)
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Characteristics:}
+      \begin{itemize}
+        \item Time: $O((V + E) \log V)$ with heap
+        \item Space: $O(V)$
+        \item Vertex-based approach
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Use Case:}
+      \begin{itemize}
+        \item Dense graphs ($E \approx V^2$)
+        \item Adjacency matrix representation
+        \item Similar to Dijkstra
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{MST: Kruskal vs Prim}
+  \begin{table}
+    \centering
+    \begin{tabular}{lcc}
+      \hline
+      \textbf{Aspect} & \textbf{Kruskal} & \textbf{Prim} \\
+      \hline
+      Approach & Edge-based & Vertex-based \\
+      Data Structure & Union-Find & Priority Queue \\
+      Time Complexity & $O(E \log E)$ & $O((V+E) \log V)$ \\
+      Best For & Sparse graphs & Dense graphs \\
+      Graph Rep. & Edge list & Adjacency list/matrix \\
+      \hline
+    \end{tabular}
+  \end{table}
+
+  \vspace{0.3cm}
+  \begin{block}{Selection Guide}
+    \begin{itemize}
+      \item Sparse graph ($E \ll V^2$) $\to$ Kruskal
+      \item Dense graph ($E \approx V^2$) $\to$ Prim
+      \item Both guarantee optimal MST
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+%% Dynamic Programming
+\section{Dynamic Programming with Data Structures}
+
+\begin{frame}{Dynamic Programming Overview}
+  \begin{block}{Core Idea}
+    Break problem into overlapping subproblems, store results to avoid recomputation
+  \end{block}
+
+  \vspace{0.3cm}
+  \textbf{Key Properties:}
+  \begin{itemize}
+    \item \textbf{Optimal Substructure}: Optimal solution contains optimal solutions to subproblems
+    \item \textbf{Overlapping Subproblems}: Same subproblems solved multiple times
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Data Structure's Role:}
+  \begin{itemize}
+    \item \textbf{Memoization}: Hash table for caching
+    \item \textbf{Tabulation}: Arrays for bottom-up
+    \item \textbf{State Optimization}: Specialized structures
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{DP with Arrays}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Classic Problems:}
+      \begin{itemize}
+        \item Fibonacci numbers
+        \item Longest Increasing Subsequence
+        \item Maximum subarray sum
+        \item Edit distance
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Pattern:}
+      \begin{enumerate}
+        \item Define state: \texttt{dp[i]}
+        \item Base cases
+        \item Recurrence relation
+        \item Compute bottom-up
+      \end{enumerate}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Example: Fibonacci}
+      \begin{align*}
+        &\text{dp}[0] = 0 \\
+        &\text{dp}[1] = 1 \\
+        &\text{dp}[i] = \text{dp}[i-1] + \text{dp}[i-2]
+      \end{align*}
+
+      \vspace{0.3cm}
+      \textbf{Space Optimization:}
+      \begin{itemize}
+        \item Only need last 2 values
+        \item $O(n) \to O(1)$ space
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{DP with Hash Tables}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Use Cases:}
+      \begin{itemize}
+        \item State space is sparse
+        \item Multi-dimensional state
+        \item State is complex (tuple, string)
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Advantages:}
+      \begin{itemize}
+        \item Only store computed states
+        \item Flexible state representation
+        \item Easy memoization
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Example: Word Break}
+      \begin{itemize}
+        \item State: remaining substring
+        \item Hash table maps substring $\to$ boolean
+        \item $O(n^2)$ time, $O(n)$ space
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Pattern:}
+      \begin{enumerate}
+        \item Check if state cached
+        \item If not, compute recursively
+        \item Cache result before returning
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{DP with Trees}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Tree DP Problems:}
+      \begin{itemize}
+        \item Tree diameter
+        \item House robber on tree
+        \item Maximum path sum
+        \item Subtree queries
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Pattern:}
+      \begin{enumerate}
+        \item DFS traversal
+        \item Combine child results
+        \item Return value for parent
+      \end{enumerate}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Example: Tree Diameter}
+      \begin{itemize}
+        \item State: max depth from node
+        \item Combine: max of two child depths
+        \item Answer: max sum of two child depths
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Complexity:}
+      \begin{itemize}
+        \item Time: $O(n)$ (visit each node once)
+        \item Space: $O(h)$ recursion stack
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{DP with Graphs}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Graph DP Problems:}
+      \begin{itemize}
+        \item Shortest paths (Floyd-Warshall)
+        \item Traveling Salesman (TSP)
+        \item Longest path in DAG
+        \item Number of paths
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{DAG Pattern:}
+      \begin{enumerate}
+        \item Topological sort
+        \item Process in topo order
+        \item Compute DP for each vertex
+      \end{enumerate}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{TSP with Bitmask DP:}
+      \begin{itemize}
+        \item State: \texttt{dp[mask][i]}
+        \item \texttt{mask}: visited vertices
+        \item \texttt{i}: current vertex
+        \item Time: $O(2^n \cdot n^2)$
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Applications:}
+      \begin{itemize}
+        \item Route optimization
+        \item Circuit board drilling
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% Complexity-Driven Design
+\section{Complexity-Driven Design}
+
+\begin{frame}{Complexity-Driven Design Philosophy}
+  \begin{block}{Core Principle}
+    Choose data structures and algorithms based on complexity requirements
+  \end{block}
+
+  \vspace{0.3cm}
+  \textbf{Design Process:}
+  \begin{enumerate}
+    \item Identify operations needed
+    \item Determine frequency of each operation
+    \item Analyze required time/space complexity
+    \item Select optimal data structure + algorithm
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Trade-off Considerations:}
+  \begin{itemize}
+    \item Time vs. space
+    \item Preprocessing vs. query time
+    \item Average vs. worst-case performance
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Complexity Analysis Framework}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Common Complexities:}
+      \begin{itemize}
+        \item $O(1)$ - Constant
+        \item $O(\log n)$ - Logarithmic
+        \item $O(n)$ - Linear
+        \item $O(n \log n)$ - Linearithmic
+        \item $O(n^2)$ - Quadratic
+        \item $O(2^n)$ - Exponential
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Growth Comparison:}
+      \begin{itemize}
+        \item $n = 10$: all fast
+        \item $n = 100$: $O(n^2)$ noticeable
+        \item $n = 1000$: $O(n \log n)$ max
+        \item $n = 10^6$: $O(n)$ or better
+        \item $n = 10^9$: $O(\log n)$ or $O(1)$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.3cm}
+  \begin{alertblock}{Critical Insight}
+    A faster algorithm with better complexity will eventually outperform a slower one, regardless of constant factors
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Data Structure Selection Guide}
+  \begin{table}
+    \centering
+    \tiny
+    \begin{tabular}{lcccc}
+      \hline
+      \textbf{Need} & \textbf{Insert} & \textbf{Search} & \textbf{Delete} & \textbf{Structure} \\
+      \hline
+      Fast access & - & $O(1)$ & - & Array / Hash \\
+      Fast insert/delete & $O(1)$ & - & $O(1)$ & Linked List \\
+      Sorted + search & $O(n)$ & $O(\log n)$ & $O(n)$ & Sorted Array \\
+      Sorted + dynamic & $O(\log n)$ & $O(\log n)$ & $O(\log n)$ & BST / Heap \\
+      Range queries & - & $O(\log n)$ & - & Segment Tree \\
+      Key-value & $O(1)$ & $O(1)$ & $O(1)$ & Hash Table \\
+      Priority & $O(\log n)$ & $O(1)$ min & $O(\log n)$ & Heap \\
+      \hline
+    \end{tabular}
+  \end{table}
+
+  \vspace{0.3cm}
+  \begin{block}{Selection Criteria}
+    \begin{itemize}
+      \item Identify the most frequent operation
+      \item Optimize for that operation
+      \item Accept trade-offs for less frequent operations
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Algorithm Selection Examples}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Sorting Selection:}
+      \begin{itemize}
+        \item Small array ($n < 50$) $\to$ Insertion
+        \item General purpose $\to$ Quick Sort
+        \item Stable needed $\to$ Merge Sort
+        \item Limited memory $\to$ Heap Sort
+        \item Integer range $\to$ Counting Sort
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Graph Algorithm Selection:}
+      \begin{itemize}
+        \item Single shortest path $\to$ Dijkstra
+        \item Negative weights $\to$ Bellman-Ford
+        \item All pairs $\to$ Floyd-Warshall
+        \item MST sparse $\to$ Kruskal
+        \item MST dense $\to$ Prim
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% Practical Optimization Patterns
+\section{Practical Optimization Patterns}
+
+\begin{frame}{Optimization Patterns Overview}
+  \begin{block}{What Are Patterns?}
+    Reusable techniques that optimize algorithms for specific problem structures
+  \end{block}
+
+  \vspace{0.3cm}
+  \textbf{Common Patterns:}
+  \begin{itemize}
+    \item Two Pointers
+    \item Sliding Window
+    \item Prefix Sum
+    \item Monotonic Stack
+    \item Binary Search Patterns
+    \item Greedy with Sorting
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Benefits:}
+  \begin{itemize}
+    \item Reduce time complexity (often $O(n^2) \to O(n)$)
+    \item Simplify implementation
+    \item Widely applicable
+  \end{itemize}
+\end{frame}
+
+\subsection{Two Pointers}
+
+\begin{frame}{Two Pointers Pattern}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Concept:}
+      \begin{itemize}
+        \item Use two indices/pointers
+        \item Move based on conditions
+        \item Avoid nested loops
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Variants:}
+      \begin{itemize}
+        \item Opposite direction (start/end)
+        \item Same direction (slow/fast)
+        \item Two arrays
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Common Problems:}
+      \begin{itemize}
+        \item Two Sum (sorted)
+        \item Container with most water
+        \item Remove duplicates
+        \item Palindrome check
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Complexity:}
+      \begin{itemize}
+        \item Time: $O(n)$ (single pass)
+        \item Space: $O(1)$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Two Pointers: Example}
+\begin{lstlisting}[language=Python]
+def two_sum_sorted(arr, target):
+    """Find pair summing to target in sorted array"""
+    left, right = 0, len(arr) - 1
+
+    while left < right:
+        current_sum = arr[left] + arr[right]
+
+        if current_sum == target:
+            return [left, right]
+        elif current_sum < target:
+            left += 1
+        else:
+            right -= 1
+
+    return []  # No pair found
+\end{lstlisting}
+
+Time: $O(n)$ instead of $O(n^2)$ brute force
+\end{frame}
+
+\subsection{Sliding Window}
+
+\begin{frame}{Sliding Window Pattern}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Concept:}
+      \begin{itemize}
+        \item Maintain a window over data
+        \item Expand/contract window
+        \item Track window properties
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Types:}
+      \begin{itemize}
+        \item Fixed size window
+        \item Variable size window
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Common Problems:}
+      \begin{itemize}
+        \item Maximum sum subarray (size $k$)
+        \item Longest substring without repeats
+        \item Minimum window substring
+        \item Subarray product less than $k$
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Complexity:}
+      \begin{itemize}
+        \item Time: $O(n)$ (each element visited twice max)
+        \item Space: $O(k)$ for window state
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Sliding Window: Fixed Size Example}
+\begin{lstlisting}[language=Python]
+def max_sum_subarray(arr, k):
+    """Find maximum sum of subarray of size k"""
+    window_sum = sum(arr[:k])
+    max_sum = window_sum
+
+    for i in range(k, len(arr)):
+        # Slide window: remove left, add right
+        window_sum = window_sum - arr[i - k] + arr[i]
+        max_sum = max(max_sum, window_sum)
+
+    return max_sum
+\end{lstlisting}
+
+Time: $O(n)$ instead of $O(nk)$ recomputing each window
+\end{frame}
+
+\subsection{Prefix Sum}
+
+\begin{frame}{Prefix Sum Pattern}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Concept:}
+      \begin{itemize}
+        \item Precompute cumulative sums
+        \item Answer range queries in $O(1)$
+        \item Trade space for time
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Formula:}
+      \begin{align*}
+        &\text{prefix}[i] = \sum_{j=0}^{i} \text{arr}[j] \\
+        &\text{sum}[l, r] = \text{prefix}[r] - \text{prefix}[l-1]
+      \end{align*}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Common Problems:}
+      \begin{itemize}
+        \item Range sum queries
+        \item Subarray sum equals $k$
+        \item Equilibrium index
+        \item 2D matrix sum queries
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Complexity:}
+      \begin{itemize}
+        \item Preprocess: $O(n)$
+        \item Query: $O(1)$
+        \item Space: $O(n)$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\subsection{Monotonic Stack}
+
+\begin{frame}{Monotonic Stack Pattern}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Concept:}
+      \begin{itemize}
+        \item Stack maintaining monotonic property
+        \item Pop elements violating property
+        \item Efficient for next/previous greater/smaller
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Types:}
+      \begin{itemize}
+        \item Monotonic increasing
+        \item Monotonic decreasing
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Common Problems:}
+      \begin{itemize}
+        \item Next greater element
+        \item Largest rectangle in histogram
+        \item Stock span problem
+        \item Trapping rain water
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Complexity:}
+      \begin{itemize}
+        \item Time: $O(n)$ (each element pushed/popped once)
+        \item Space: $O(n)$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\subsection{Binary Search Patterns}
+
+\begin{frame}{Binary Search on Answer}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Concept:}
+      \begin{itemize}
+        \item Search space is answer range
+        \item Not searching in array
+        \item Check if answer is feasible
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Pattern:}
+      \begin{enumerate}
+        \item Define search space [low, high]
+        \item Binary search on answer
+        \item Check feasibility with $O(n)$ function
+      \end{enumerate}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Common Problems:}
+      \begin{itemize}
+        \item Allocate minimum pages
+        \item Split array largest sum
+        \item Koko eating bananas
+        \item Capacity to ship packages
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Complexity:}
+      \begin{itemize}
+        \item Time: $O(n \log(\text{range}))$
+        \item Space: $O(1)$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\subsection{Greedy with Sorting}
+
+\begin{frame}{Greedy with Sorting Pattern}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Concept:}
+      \begin{itemize}
+        \item Sort to reveal greedy structure
+        \item Make locally optimal choices
+        \item Often requires proof of correctness
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Pattern:}
+      \begin{enumerate}
+        \item Sort by appropriate criterion
+        \item Iterate and make greedy choice
+        \item Prove optimal substructure
+      \end{enumerate}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Common Problems:}
+      \begin{itemize}
+        \item Activity selection
+        \item Fractional knapsack
+        \item Meeting rooms
+        \item Non-overlapping intervals
+      \end{itemize}
+
+      \vspace{0.3cm}
+      \textbf{Complexity:}
+      \begin{itemize}
+        \item Time: $O(n \log n)$ for sorting
+        \item Space: $O(1)$ or $O(n)$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Optimization Patterns: Summary}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{lcc}
+      \hline
+      \textbf{Pattern} & \textbf{Time Improvement} & \textbf{Common Use} \\
+      \hline
+      Two Pointers & $O(n^2) \to O(n)$ & Sorted arrays, pairs \\
+      Sliding Window & $O(nk) \to O(n)$ & Subarrays, substrings \\
+      Prefix Sum & $O(n) \to O(1)$ per query & Range queries \\
+      Monotonic Stack & $O(n^2) \to O(n)$ & Next greater/smaller \\
+      Binary Search on Answer & $O(n^2) \to O(n \log R)$ & Optimization problems \\
+      Greedy + Sorting & Varies & Scheduling, intervals \\
+      \hline
+    \end{tabular}
+  \end{table}
+
+  \vspace{0.3cm}
+  \begin{block}{Pattern Recognition}
+    Learning these patterns helps identify optimization opportunities in new problems
+  \end{block}
+\end{frame}
+
+% %% Summary
+\section{Summary}
+
+\begin{frame}{Course Summary}
+  \textbf{Sorting Algorithms:}
+  \begin{itemize}
+    \item Comparison-based: $\Omega(n \log n)$ lower bound
+    \item Non-comparison: Can beat lower bound with constraints
+    \item Choose based on data characteristics and constraints
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Searching Algorithms:}
+  \begin{itemize}
+    \item Sorted arrays enable $O(\log n)$ search
+    \item Hash tables provide $O(1)$ average lookup
+    \item Specialized searches for specific scenarios
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Graph Algorithms:}
+  \begin{itemize}
+    \item Shortest path: Dijkstra, Bellman-Ford, Floyd-Warshall, A*
+    \item MST: Kruskal (sparse), Prim (dense)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Key Takeaways}
+  \textbf{Dynamic Programming:}
+  \begin{itemize}
+    \item Data structures enable efficient DP implementation
+    \item Arrays for tabulation, hash tables for memoization
+    \item Choose structure based on state space
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Complexity-Driven Design:}
+  \begin{itemize}
+    \item Analyze required operations and frequencies
+    \item Select data structures optimizing common operations
+    \item Accept trade-offs for rare operations
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Optimization Patterns:}
+  \begin{itemize}
+    \item Two pointers, sliding window, prefix sum, monotonic stack
+    \item Often reduce $O(n^2) \to O(n)$
+    \item Pattern recognition is key skill
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Final Thoughts}
+  \begin{block}{Algorithm + Data Structure = Program}
+    Neither algorithms nor data structures exist in isolation. Mastery requires understanding their synergy.
+  \end{block}
+
+  \vspace{0.3cm}
+  \textbf{Problem-Solving Process:}
+  \begin{enumerate}
+    \item Understand the problem and constraints
+    \item Identify the required complexity
+    \item Recognize applicable patterns
+    \item Choose appropriate data structure
+    \item Implement and optimize
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \begin{center}
+    \textit{``The best algorithm is the one that solves your specific problem efficiently.''}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    {\Huge Thank You!}
+
+    \vspace{1cm}
+    {\Large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

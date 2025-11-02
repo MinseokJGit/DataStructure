@@ -1,0 +1,1284 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
+
+% Set path to find the theme
+\makeatletter
+\def\input@path{{../BeamerTemplate/theme/}}
+\makeatother
+
+\usetheme{CleanEasy}
+\input{../BeamerTemplate/configs/configs}
+
+% Listings configuration
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+\title{Searching Algorithms}
+\subtitle{Find Elements Efficiently Within Collections}
+\author{Minseok Jeon}
+\institute{DGIST}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{What is Searching?}
+  \textbf{Searching}: Finding a specific element in a collection
+
+  \vspace{0.3cm}
+  \textbf{Why Searching Matters:}
+  \begin{itemize}
+    \item Fundamental operation in computer science
+    \item Used in databases, search engines, file systems
+    \item Performance-critical in many applications
+    \item Basis for more complex algorithms
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Key Questions:}
+  \begin{itemize}
+    \item Is the data sorted?
+    \item How large is the dataset?
+    \item How frequently do we search?
+    \item Can we preprocess the data?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Classification of Search Algorithms}
+  \textbf{Based on Data Structure:}
+  \begin{itemize}
+    \item \textbf{Array-based}: Linear, Binary, Interpolation, Jump
+    \item \textbf{Tree-based}: BST, AVL, Red-Black Trees
+    \item \textbf{Hash-based}: Hash Tables, Hash Maps
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Based on Preconditions:}
+  \begin{itemize}
+    \item \textbf{Unsorted data}: Linear Search, Hash Tables
+    \item \textbf{Sorted data}: Binary Search, Interpolation, Jump
+    \item \textbf{Special structures}: Tree Search
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Based on Complexity:}
+  \begin{itemize}
+    \item $O(1)$: Hash Table (average)
+    \item $O(\log \log n)$: Interpolation (average, uniform data)
+    \item $O(\log n)$: Binary Search, BST
+    \item $O(\sqrt{n})$: Jump Search
+    \item $O(n)$: Linear Search
+  \end{itemize}
+\end{frame}
+
+\section{Linear vs Binary Search}
+
+\begin{frame}{Linear Search: Overview}
+  \textbf{Sequential Search Through Elements}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Start from first element
+    \item Check each element sequentially
+    \item Return index when found
+    \item Return -1 if not found
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(n)$
+    \item \textbf{Space}: $O(1)$
+    \item \textbf{Requirement}: None (works on unsorted data)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{When to Use:}
+  \begin{itemize}
+    \item Small datasets ($n < 100$)
+    \item Unsorted data
+    \item Simple implementation needed
+    \item One-time search
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Linear Search: Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+def linear_search(arr, target):
+    """Search for target in array"""
+    for i in range(len(arr)):
+        if arr[i] == target:
+            return i  # Return index
+    return -1  # Not found
+
+# Example
+arr = [64, 34, 25, 12, 22, 11, 90]
+result = linear_search(arr, 22)  # Returns 4
+\end{lstlisting}
+
+\vspace{0.3cm}
+\textbf{Analysis:}
+\begin{itemize}
+  \item \textbf{Best case}: $O(1)$ - element at first position
+  \item \textbf{Average case}: $O(n/2) = O(n)$ - element in middle
+  \item \textbf{Worst case}: $O(n)$ - element at end or not present
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Binary Search: Overview}
+  \textbf{Divide and Conquer on Sorted Array}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Find middle element
+    \item Compare with target
+    \item If equal: found!
+    \item If target $<$ middle: search left half
+    \item If target $>$ middle: search right half
+    \item Repeat until found or exhausted
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(\log n)$
+    \item \textbf{Space}: $O(1)$ iterative, $O(\log n)$ recursive
+    \item \textbf{Requirement}: Array must be sorted
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Key Advantage:}
+  \begin{itemize}
+    \item Eliminates half of search space in each step
+    \item For 1 million elements: $\log_2(1,000,000) \approx 20$ comparisons
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Binary Search: Iterative Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def binary_search(arr, target):
+    """Search for target in sorted array"""
+    left, right = 0, len(arr) - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2  # Avoid overflow
+
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1  # Search right half
+        else:
+            right = mid - 1  # Search left half
+
+    return -1  # Not found
+
+# Example (array must be sorted!)
+arr = [11, 12, 22, 25, 34, 64, 90]
+result = binary_search(arr, 22)  # Returns 2
+\end{lstlisting}
+
+\textbf{Note:} \texttt{mid = left + (right - left) // 2} avoids integer overflow
+\end{frame}
+
+\begin{frame}[fragile]{Binary Search: Recursive Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+def binary_search_recursive(arr, target, left, right):
+    if left > right:
+        return -1
+
+    mid = left + (right - left) // 2
+
+    if arr[mid] == target:
+        return mid
+    elif arr[mid] < target:
+        return binary_search_recursive(arr, target,
+                                       mid + 1, right)
+    else:
+        return binary_search_recursive(arr, target,
+                                       left, mid - 1)
+
+# Usage
+arr = [11, 12, 22, 25, 34, 64, 90]
+result = binary_search_recursive(arr, 22, 0, len(arr) - 1)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Binary Search: Visual Example}
+  \textbf{Search for 22 in [11, 12, 22, 25, 34, 64, 90]}
+
+  \vspace{0.3cm}
+  \textbf{Step 1:} left=0, right=6, mid=3
+  \begin{center}
+  [11, 12, 22, {\color{red}25}, 34, 64, 90]
+
+  arr[3]=25 $>$ 22, search left half
+  \end{center}
+
+  \vspace{0.2cm}
+  \textbf{Step 2:} left=0, right=2, mid=1
+  \begin{center}
+  [11, {\color{red}12}, 22]
+
+  arr[1]=12 $<$ 22, search right half
+  \end{center}
+
+  \vspace{0.2cm}
+  \textbf{Step 3:} left=2, right=2, mid=2
+  \begin{center}
+  [{\color{green}22}]
+
+  arr[2]=22, found at index 2!
+  \end{center}
+
+  \vspace{0.3cm}
+  \textbf{Result:} Only 3 comparisons for 7 elements
+\end{frame}
+
+\begin{frame}{Linear vs Binary Search: Comparison}
+  \begin{center}
+  \begin{tabular}{|l|c|c|}
+    \hline
+    \textbf{Feature} & \textbf{Linear} & \textbf{Binary} \\
+    \hline
+    Time Complexity & $O(n)$ & $O(\log n)$ \\
+    \hline
+    Space Complexity & $O(1)$ & $O(1)$ iterative \\
+    \hline
+    Sorted Required & No & Yes \\
+    \hline
+    Best For & Small/unsorted & Large/sorted \\
+    \hline
+    Avg comparisons (n=1000) & 500 & 10 \\
+    \hline
+    Implementation & Simple & Moderate \\
+    \hline
+    Linked List Support & Yes & No \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  \textbf{Performance Comparison:}
+  \begin{itemize}
+    \item $n=10$: Linear=5, Binary=3
+    \item $n=100$: Linear=50, Binary=7
+    \item $n=1,000,000$: Linear=500,000, Binary=20
+  \end{itemize}
+\end{frame}
+
+\section{Binary Search on Answers (Parametric)}
+
+\begin{frame}{Concept: Search the Answer Space}
+  \textbf{Binary Search on Answers (Parametric Search)}
+
+  \vspace{0.3cm}
+  \textbf{Idea:}
+  \begin{itemize}
+    \item Binary search on the \textbf{solution space}, not the array
+    \item Find minimum/maximum value satisfying a condition
+    \item Requires monotonic property
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Monotonic Property:}
+  \begin{itemize}
+    \item If value $x$ works, then all values $> x$ also work (or vice versa)
+    \item Creates a boundary: [false, false, ..., true, true, ...]
+    \item Binary search finds the boundary
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Common Patterns:}
+  \begin{itemize}
+    \item \textbf{Minimize maximum}: Find smallest value where all constraints satisfied
+    \item \textbf{Maximize minimum}: Find largest value where all constraints satisfied
+    \item \textbf{Find threshold}: Find boundary where condition changes
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Template: Binary Search on Answers}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+def binary_search_answer(condition_func, low, high):
+    """
+    Find minimum value in [low, high] satisfying condition
+    """
+    result = -1
+
+    while low <= high:
+        mid = low + (high - low) // 2
+
+        if condition_func(mid):
+            result = mid
+            high = mid - 1  # Try to find smaller
+        else:
+            low = mid + 1
+
+    return result
+\end{lstlisting}
+
+\textbf{Key Points:}
+\begin{itemize}
+  \item \texttt{condition\_func(x)}: Returns True if x satisfies constraint
+  \item Search space: continuous range of values
+  \item Answer: boundary where condition becomes true
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Example 1: Integer Square Root}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def sqrt(x):
+    """Find integer square root of x"""
+    if x < 2:
+        return x
+
+    left, right = 1, x // 2
+
+    while left <= right:
+        mid = left + (right - left) // 2
+        square = mid * mid
+
+        if square == x:
+            return mid
+        elif square < x:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return right  # Largest integer whose square <= x
+
+# Example: sqrt(8) = 2 (since 2^2 = 4 <= 8 < 3^2 = 9)
+print(sqrt(8))   # Output: 2
+print(sqrt(16))  # Output: 4
+print(sqrt(17))  # Output: 4
+\end{lstlisting}
+
+\textbf{Analysis:} Search space is [1, x/2], binary search in $O(\log x)$
+\end{frame}
+
+\begin{frame}[fragile]{Example 2: Minimum Ship Capacity}
+\textbf{Problem:} Ship packages in D days, find minimum capacity
+
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def ship_within_days(weights, days):
+    """Find minimum ship capacity"""
+    def can_ship(capacity):
+        """Check if we can ship with given capacity"""
+        days_needed = 1
+        current_load = 0
+
+        for weight in weights:
+            if current_load + weight > capacity:
+                days_needed += 1
+                current_load = weight
+            else:
+                current_load += weight
+
+        return days_needed <= days
+
+    # Binary search on capacity
+    left = max(weights)  # Min: heaviest package
+    right = sum(weights)  # Max: all at once
+
+    while left < right:
+        mid = left + (right - left) // 2
+
+        if can_ship(mid):
+            right = mid  # Try smaller capacity
+        else:
+            left = mid + 1
+
+    return left
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Ship Capacity Example}
+  \textbf{Input:} weights = [1,2,3,4,5,6,7,8,9,10], days = 5
+
+  \vspace{0.3cm}
+  \textbf{Search Space:}
+  \begin{itemize}
+    \item Minimum capacity: max(weights) = 10
+    \item Maximum capacity: sum(weights) = 55
+    \item Search range: [10, 55]
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Binary Search Process:}
+  \begin{itemize}
+    \item Try capacity=32: Can ship in 3 days $\rightarrow$ too large
+    \item Try capacity=21: Can ship in 4 days $\rightarrow$ too large
+    \item Try capacity=15: Can ship in 5 days $\rightarrow$ works!
+    \item Try capacity=12: Cannot ship in 5 days $\rightarrow$ too small
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Answer:} 15
+
+  \textbf{Distribution:} [1,2,3,4,5], [6,7], [8], [9], [10]
+\end{frame}
+
+\begin{frame}[fragile]{Example 3: Koko Eating Bananas}
+\textbf{Problem:} Finish all banana piles in H hours, minimize eating speed
+
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def min_eating_speed(piles, h):
+    """Find minimum eating speed"""
+    def can_finish(speed):
+        """Check if can finish with given speed"""
+        hours = 0
+        for pile in piles:
+            hours += (pile + speed - 1) // speed  # Ceiling
+        return hours <= h
+
+    left, right = 1, max(piles)
+
+    while left < right:
+        mid = left + (right - left) // 2
+
+        if can_finish(mid):
+            right = mid
+        else:
+            left = mid + 1
+
+    return left
+
+# Example: piles=[3,6,7,11], h=8
+# Answer: 4 (eat 4 bananas/hour)
+\end{lstlisting}
+\end{frame}
+
+\section{Search Trees and Hashing}
+
+\begin{frame}{Binary Search Tree (BST)}
+  \textbf{Tree-Based Search Structure}
+
+  \vspace{0.3cm}
+  \textbf{Properties:}
+  \begin{itemize}
+    \item Each node has left (smaller) and right (larger) children
+    \item Left subtree $<$ node $<$ right subtree
+    \item Enables $O(\log n)$ search on average
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Search}: $O(\log n)$ average, $O(n)$ worst
+    \item \textbf{Insert/Delete}: $O(\log n)$ average
+    \item \textbf{Space}: $O(n)$
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Advantages:}
+  \begin{itemize}
+    \item Dynamic: supports insertions/deletions
+    \item Maintains sorted order
+    \item Range queries efficient
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Disadvantage:}
+  \begin{itemize}
+    \item Can degenerate to $O(n)$ if unbalanced
+    \item Solution: Self-balancing trees (AVL, Red-Black)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{BST Search Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+class TreeNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+
+def search_bst(root, target):
+    """Search in BST - Recursive"""
+    if not root or root.val == target:
+        return root
+
+    if target < root.val:
+        return search_bst(root.left, target)
+    else:
+        return search_bst(root.right, target)
+
+def search_bst_iterative(root, target):
+    """Search in BST - Iterative"""
+    while root and root.val != target:
+        if target < root.val:
+            root = root.left
+        else:
+            root = root.right
+    return root
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Hash Table Search}
+  \textbf{Constant-Time Lookup via Hashing}
+
+  \vspace{0.3cm}
+  \textbf{Concept:}
+  \begin{itemize}
+    \item Map keys to array indices using hash function
+    \item Direct access to value via computed index
+    \item Handle collisions (chaining or open addressing)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Search}: $O(1)$ average, $O(n)$ worst
+    \item \textbf{Insert/Delete}: $O(1)$ average
+    \item \textbf{Space}: $O(n)$
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Advantages:}
+  \begin{itemize}
+    \item Fastest average-case search: $O(1)$
+    \item Simple interface (key-value pairs)
+    \item Good for large datasets with unique keys
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Disadvantages:}
+  \begin{itemize}
+    \item No sorted order
+    \item Poor worst-case performance
+    \item Extra memory for hash table
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Hash Table Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+class HashTable:
+    def __init__(self, size=10):
+        self.size = size
+        self.table = [[] for _ in range(size)]
+
+    def _hash(self, key):
+        return hash(key) % self.size
+
+    def insert(self, key, value):
+        index = self._hash(key)
+        for i, (k, v) in enumerate(self.table[index]):
+            if k == key:
+                self.table[index][i] = (key, value)
+                return
+        self.table[index].append((key, value))
+
+    def search(self, key):
+        index = self._hash(key)
+        for k, v in self.table[index]:
+            if k == key:
+                return v
+        return None
+
+# Python's built-in dict is a hash table
+hash_table = {"apple": 5, "banana": 3}
+print(hash_table["apple"])  # O(1) lookup
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Comparison: Array, BST, Hash Table}
+  \begin{center}
+  \begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Structure} & \textbf{Average} & \textbf{Worst} & \textbf{Sorted} \\
+    \hline
+    Sorted Array + Binary & $O(\log n)$ & $O(\log n)$ & Yes \\
+    \hline
+    BST & $O(\log n)$ & $O(n)$ & Yes \\
+    \hline
+    Balanced BST & $O(\log n)$ & $O(\log n)$ & Yes \\
+    \hline
+    Hash Table & $O(1)$ & $O(n)$ & No \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  \textbf{When to Use:}
+  \begin{itemize}
+    \item \textbf{Sorted Array}: Static data, range queries
+    \item \textbf{BST}: Dynamic data, need sorted order
+    \item \textbf{Balanced BST}: Guaranteed performance, sorted
+    \item \textbf{Hash Table}: Fast lookup, no order needed
+  \end{itemize}
+\end{frame}
+
+\section{Interpolation and Exponential Search}
+
+\begin{frame}{Interpolation Search}
+  \textbf{Position Estimation Based on Value}
+
+  \vspace{0.3cm}
+  \textbf{Idea:}
+  \begin{itemize}
+    \item Like looking up a name in phone book
+    \item Estimate position based on value distribution
+    \item Works best with uniformly distributed data
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Position Formula:}
+  \begin{center}
+  $pos = left + \frac{(target - arr[left])}{(arr[right] - arr[left])} \times (right - left)$
+  \end{center}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(\log \log n)$ average, $O(n)$ worst
+    \item \textbf{Requirement}: Sorted + uniformly distributed
+    \item \textbf{Better than binary}: For uniform data
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Example:} Array [10, 20, 30, 40, 50, 60, 70, 80, 90], target=70
+
+  Estimate: $pos \approx 0 + \frac{70-10}{90-10} \times 8 = 6$ (directly finds it!)
+\end{frame}
+
+\begin{frame}[fragile]{Interpolation Search Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def interpolation_search(arr, target):
+    """Search in uniformly distributed sorted array"""
+    left, right = 0, len(arr) - 1
+
+    while left <= right and target >= arr[left] and target <= arr[right]:
+        if left == right:
+            if arr[left] == target:
+                return left
+            return -1
+
+        # Estimate position
+        pos = left + int(((target - arr[left]) /
+                         (arr[right] - arr[left])) * (right - left))
+
+        if arr[pos] == target:
+            return pos
+        elif arr[pos] < target:
+            left = pos + 1
+        else:
+            right = pos - 1
+
+    return -1
+
+# Example: uniformly distributed data
+arr = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+result = interpolation_search(arr, 70)  # Returns 6
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Exponential Search}
+  \textbf{Find Range, Then Binary Search}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Check if element at position 0
+    \item Find range $[2^{k-1}, 2^k]$ where element exists
+    \item Perform binary search in that range
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(\log n)$
+    \item \textbf{Best for}: Element near beginning, unbounded arrays
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Why Useful:}
+  \begin{itemize}
+    \item Don't need to know array size
+    \item Better than binary search when target near start
+    \item Good for infinite/unbounded lists
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Example:} Search for 10 in sorted array
+
+  Check positions: 1, 2, 4, 8, 16 $\rightarrow$ found range [8, 16]
+
+  Binary search in [8, 16] $\rightarrow$ find exact position
+\end{frame}
+
+\begin{frame}[fragile]{Exponential Search Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def exponential_search(arr, target):
+    """Search in sorted array, efficient when target near start"""
+    n = len(arr)
+
+    # If target at first position
+    if arr[0] == target:
+        return 0
+
+    # Find range for binary search
+    i = 1
+    while i < n and arr[i] <= target:
+        i *= 2
+
+    # Binary search in range [i//2, min(i, n-1)]
+    return binary_search_range(arr, target, i // 2, min(i, n - 1))
+
+def binary_search_range(arr, target, left, right):
+    while left <= right:
+        mid = left + (right - left) // 2
+
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return -1
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Jump Search}
+  \textbf{Jump Fixed Steps, Then Linear}
+
+  \vspace{0.3cm}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item Jump ahead by $\sqrt{n}$ steps
+    \item Find block containing target
+    \item Linear search within block
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Characteristics:}
+  \begin{itemize}
+    \item \textbf{Time}: $O(\sqrt{n})$
+    \item \textbf{Jump size}: Optimal is $\sqrt{n}$
+    \item \textbf{Space}: $O(1)$
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Why Use:}
+  \begin{itemize}
+    \item Simpler than binary search
+    \item Better than linear search
+    \item Good for systems where backward jumps expensive
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Trade-off:}
+  \begin{itemize}
+    \item Slower than binary search: $O(\sqrt{n})$ vs $O(\log n)$
+    \item Simpler implementation
+    \item Better cache performance (forward-only)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Jump Search Implementation}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+import math
+
+def jump_search(arr, target):
+    """Jump search in sorted array"""
+    n = len(arr)
+    step = int(math.sqrt(n))
+    prev = 0
+
+    # Jump to find block
+    while arr[min(step, n) - 1] < target:
+        prev = step
+        step += int(math.sqrt(n))
+        if prev >= n:
+            return -1
+
+    # Linear search in block
+    while arr[prev] < target:
+        prev += 1
+        if prev == min(step, n):
+            return -1
+
+    if arr[prev] == target:
+        return prev
+
+    return -1
+\end{lstlisting}
+\end{frame}
+
+\section{Complexity and Preconditions}
+
+\begin{frame}{Time Complexity Summary}
+  \begin{center}
+  \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Algorithm} & \textbf{Best} & \textbf{Avg} & \textbf{Worst} & \textbf{Space} \\
+    \hline
+    Linear & $O(1)$ & $O(n)$ & $O(n)$ & $O(1)$ \\
+    \hline
+    Binary & $O(1)$ & $O(\log n)$ & $O(\log n)$ & $O(1)$ \\
+    \hline
+    Interpolation & $O(1)$ & $O(\log \log n)$ & $O(n)$ & $O(1)$ \\
+    \hline
+    Exponential & $O(1)$ & $O(\log n)$ & $O(\log n)$ & $O(1)$ \\
+    \hline
+    Jump & $O(1)$ & $O(\sqrt{n})$ & $O(\sqrt{n})$ & $O(1)$ \\
+    \hline
+    BST & $O(\log n)$ & $O(\log n)$ & $O(n)$ & $O(n)$ \\
+    \hline
+    Hash Table & $O(1)$ & $O(1)$ & $O(n)$ & $O(n)$ \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  \textbf{Performance Comparison (n=1,000,000):}
+  \begin{itemize}
+    \item Linear: up to 1,000,000 comparisons
+    \item Jump: $\sqrt{1,000,000} = 1,000$ comparisons
+    \item Binary: $\log_2(1,000,000) \approx 20$ comparisons
+    \item Interpolation: $\log \log(1,000,000) \approx 4$ comparisons
+    \item Hash: 1 comparison (average)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Preconditions: Binary Search}
+\textbf{MUST be sorted!}
+
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+# Correct usage
+arr = [1, 3, 5, 7, 9, 11, 13]  # Sorted
+result = binary_search(arr, 7)  # Works correctly
+
+# Incorrect usage
+arr = [3, 1, 5, 9, 7, 11, 13]  # NOT sorted
+result = binary_search(arr, 7)  # May fail!
+
+# Check if sorted
+def is_sorted(arr):
+    return all(arr[i] <= arr[i+1]
+               for i in range(len(arr)-1))
+
+# Safe usage
+if is_sorted(arr):
+    result = binary_search(arr, target)
+else:
+    arr.sort()  # Sort first
+    result = binary_search(arr, target)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Preconditions: Other Algorithms}
+\textbf{Interpolation Search:}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+# MUST be sorted AND uniformly distributed
+arr = [10, 20, 30, 40, 50]        # Good: uniform
+arr = [1, 2, 3, 100, 1000]        # Bad: not uniform
+\end{lstlisting}
+
+\vspace{0.3cm}
+\textbf{Hash Table:}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+# Keys must be hashable (immutable)
+hash_table[42] = "value"           # OK: int
+hash_table["key"] = "value"        # OK: str
+hash_table[(1, 2)] = "value"       # OK: tuple
+hash_table[[1, 2]] = "value"       # ERROR: list!
+\end{lstlisting}
+
+\vspace{0.3cm}
+\textbf{BST:}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+# Elements must be comparable
+bst.insert(5)    # OK: int
+bst.insert("a")  # ERROR if tree has ints!
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Choosing the Right Algorithm}
+  \textbf{Decision Factors:}
+
+  \vspace{0.3cm}
+  \textbf{1. Data Characteristics:}
+  \begin{itemize}
+    \item Sorted? $\rightarrow$ Binary, Interpolation, Jump
+    \item Uniformly distributed? $\rightarrow$ Interpolation
+    \item Small size ($< 100$)? $\rightarrow$ Linear
+    \item Large size? $\rightarrow$ Binary or Hash
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{2. Operation Frequency:}
+  \begin{itemize}
+    \item Many searches? $\rightarrow$ Hash Table or BST
+    \item One-time search? $\rightarrow$ Linear
+    \item Frequent insertions/deletions? $\rightarrow$ Hash or BST
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{3. Requirements:}
+  \begin{itemize}
+    \item Need sorted order? $\rightarrow$ BST or Sorted Array
+    \item Range queries? $\rightarrow$ BST
+    \item Fastest possible? $\rightarrow$ Hash Table
+    \item Memory constrained? $\rightarrow$ In-place algorithms
+  \end{itemize}
+\end{frame}
+
+\section{Applications and Patterns}
+
+\begin{frame}[fragile]{Pattern 1: Finding Boundaries}
+\textbf{Find first and last occurrence in sorted array}
+
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def find_first_occurrence(arr, target):
+    """Find first occurrence of target"""
+    left, right = 0, len(arr) - 1
+    result = -1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+
+        if arr[mid] == target:
+            result = mid
+            right = mid - 1  # Continue searching left
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return result
+
+def find_last_occurrence(arr, target):
+    """Find last occurrence of target"""
+    left, right = 0, len(arr) - 1
+    result = -1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+
+        if arr[mid] == target:
+            result = mid
+            left = mid + 1  # Continue searching right
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return result
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Pattern 2: Rotated Array Search}
+\textbf{Search in rotated sorted array}
+
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def search_rotated(arr, target):
+    """
+    Search in rotated sorted array
+    Example: [4,5,6,7,0,1,2] (rotated at index 4)
+    """
+    left, right = 0, len(arr) - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+
+        if arr[mid] == target:
+            return mid
+
+        # Determine which half is sorted
+        if arr[left] <= arr[mid]:
+            # Left half is sorted
+            if arr[left] <= target < arr[mid]:
+                right = mid - 1
+            else:
+                left = mid + 1
+        else:
+            # Right half is sorted
+            if arr[mid] < target <= arr[right]:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+    return -1
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Pattern 3: Peak Finding}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+def find_peak_element(arr):
+    """
+    Find a peak element (greater than neighbors)
+    """
+    left, right = 0, len(arr) - 1
+
+    while left < right:
+        mid = left + (right - left) // 2
+
+        if arr[mid] < arr[mid + 1]:
+            left = mid + 1  # Peak is on right
+        else:
+            right = mid  # Peak is on left or at mid
+
+    return left
+
+# Example: [1, 3, 20, 4, 1, 0]
+# Peak at index 2 (value 20)
+\end{lstlisting}
+
+\textbf{Key Insight:} Always move towards higher values
+\end{frame}
+
+\begin{frame}[fragile]{Pattern 4: 2D Matrix Search}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\tiny]
+def search_matrix(matrix, target):
+    """
+    Search in row-wise and column-wise sorted matrix
+    Example: [[1,4,7,11],
+              [2,5,8,12],
+              [3,6,9,16],
+              [10,13,14,17]]
+    """
+    if not matrix or not matrix[0]:
+        return False
+
+    rows, cols = len(matrix), len(matrix[0])
+
+    # Start from top-right corner
+    row, col = 0, cols - 1
+
+    while row < rows and col >= 0:
+        if matrix[row][col] == target:
+            return True
+        elif matrix[row][col] > target:
+            col -= 1  # Move left
+        else:
+            row += 1  # Move down
+
+    return False
+\end{lstlisting}
+
+\textbf{Time}: $O(m + n)$, \textbf{Strategy}: Eliminate row or column each step
+\end{frame}
+
+\begin{frame}[fragile]{Pattern 5: Finding Missing Number}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+def find_missing(arr):
+    """
+    Find missing number in [0, n]
+    Example: [0,1,3,4,5] -> missing 2
+    """
+    left, right = 0, len(arr) - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+
+        if arr[mid] == mid:
+            left = mid + 1  # Missing is on right
+        else:
+            right = mid - 1  # Missing is on left
+
+    return left
+
+# Example usage
+arr = [0, 1, 3, 4, 5, 6]
+print(find_missing(arr))  # Output: 2
+\end{lstlisting}
+
+\textbf{Key}: If arr[i] == i, no missing number up to i
+\end{frame}
+
+\begin{frame}{Common Search Patterns Summary}
+  \textbf{1. Find Exact Match:}
+  \begin{itemize}
+    \item Standard binary search
+    \item Return index or -1
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{2. Find First/Last Occurrence:}
+  \begin{itemize}
+    \item Binary search with boundary tracking
+    \item Continue searching after finding match
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{3. Find Insertion Position:}
+  \begin{itemize}
+    \item Binary search returning left pointer
+    \item Used for maintaining sorted order
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{4. Search in Rotated Array:}
+  \begin{itemize}
+    \item Identify which half is sorted
+    \item Search appropriate half
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{5. Find Peak/Valley:}
+  \begin{itemize}
+    \item Compare with neighbors
+    \item Move towards increasing values
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{6. 2D Search:}
+  \begin{itemize}
+    \item Start from corner
+    \item Eliminate row or column each step
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{7. Binary Search on Answer:}
+  \begin{itemize}
+    \item Search solution space
+    \item Check monotonic condition
+  \end{itemize}
+\end{frame}
+
+\section{Summary}
+
+\begin{frame}{Key Takeaways}
+  \textbf{Search Algorithm Categories:}
+  \begin{itemize}
+    \item \textbf{Linear Search}: $O(n)$, works on any data
+    \item \textbf{Binary Search}: $O(\log n)$, requires sorted data
+    \item \textbf{Interpolation}: $O(\log \log n)$, uniform distribution
+    \item \textbf{Hash Table}: $O(1)$ average, no order
+    \item \textbf{BST}: $O(\log n)$, dynamic with sorted order
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Key Concepts:}
+  \begin{itemize}
+    \item Binary search eliminates half each step
+    \item Parametric search: search answer space
+    \item Hash tables trade space for speed
+    \item Preconditions matter (sorted, uniform, etc.)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Choosing Algorithm:}
+  \begin{itemize}
+    \item Consider: data size, sorted, distribution, frequency
+    \item Small/unsorted: Linear
+    \item Large/sorted: Binary
+    \item Frequent searches: Hash or BST
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Practical Recommendations}
+  \textbf{Use Built-in Functions:}
+  \begin{itemize}
+    \item Python: \texttt{list.index()}, \texttt{bisect} module, \texttt{dict}
+    \item Java: \texttt{Arrays.binarySearch()}, \texttt{HashMap}
+    \item C++: \texttt{std::binary\_search()}, \texttt{std::map}
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Common Mistakes to Avoid:}
+  \begin{itemize}
+    \item Forgetting to sort before binary search
+    \item Integer overflow in mid calculation
+    \item Off-by-one errors in loop conditions
+    \item Using linear search on large sorted data
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Optimization Tips:}
+  \begin{itemize}
+    \item Preprocess data (sort, build index)
+    \item Cache frequent queries
+    \item Use appropriate data structure
+    \item Consider trade-offs: time vs space vs complexity
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Practice Problems}
+  \textbf{Problem 1: Binary Search Variants}
+  \begin{itemize}
+    \item Implement finding first and last occurrence
+    \item Find insertion position for sorted array
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Problem 2: Parametric Search}
+  \begin{itemize}
+    \item Koko eating bananas (LeetCode 875)
+    \item Capacity to ship packages (LeetCode 1011)
+    \item Split array largest sum (LeetCode 410)
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Problem 3: Rotated Array}
+  \begin{itemize}
+    \item Search in rotated sorted array
+    \item Find minimum in rotated array
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Problem 4: 2D Search}
+  \begin{itemize}
+    \item Search 2D matrix (LeetCode 74, 240)
+    \item Find peak in 2D array
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Resources}
+  \textbf{Books:}
+  \begin{itemize}
+    \item "Introduction to Algorithms" (CLRS) - Chapters 2, 11, 12
+    \item "The Algorithm Design Manual" (Skiena)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Online Resources:}
+  \begin{itemize}
+    \item Visualizations: visualgo.net
+    \item LeetCode Binary Search problems
+    \item GeeksforGeeks search algorithm tutorials
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Practice Platforms:}
+  \begin{itemize}
+    \item LeetCode: Binary Search tag
+    \item HackerRank: Search challenges
+    \item Codeforces: Binary search problems
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Advanced Topics:}
+  \begin{itemize}
+    \item Ternary search
+    \item Fractional cascading
+    \item Suffix arrays and trees
+  \end{itemize}
+\end{frame}
+
+\end{document}
